@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+
+  mailcatcher:
+    image: schickling/mailcatcher
+    ports:
+      - "1080:1080"  # Web UI
+      - "1025:1025"  # SMTP
+    environment:
+      SMTP_ADDRESS: 0.0.0.0
+      SMTP_PORT: 1025
+      HTTP_PORT: 1080
+
+volumes:
+  postgres_data:
+  redis_data: 
