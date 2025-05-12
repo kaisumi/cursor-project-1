@@ -206,3 +206,180 @@ type:
 - 最終更新日: 2024-04-30
 - ステータス: Draft
 - レビュー状態: 未レビュー 
+
+## 認証機能の実装
+
+### 1. 必要なgem
+```ruby
+# Gemfile
+gem 'devise'        # 認証基盤
+gem 'letter_opener' # 開発環境でのメール送信テスト
+```
+
+### 2. 設定ファイル
+```ruby
+# config/initializers/devise.rb
+Devise.setup do |config|
+  config.mailer_sender = 'please-change-me-at-config-initializers-devise@example.com'
+  config.mailer = 'Devise::Mailer'
+  config.parent_mailer = 'ActionMailer::Base'
+  config.navigational_formats = ['*/*', :html, :turbo_stream]
+  config.sign_out_via = :delete
+end
+```
+
+### 3. メール設定
+```ruby
+# config/environments/development.rb
+config.action_mailer.delivery_method = :letter_opener
+config.action_mailer.default_url_options = { host: 'localhost:3000' }
+```
+
+### 4. モデルの実装
+```ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable,
+         :authentication_keys => [:email]
+
+  def password_required?
+    false
+  end
+
+  def email_required?
+    true
+  end
+
+  def generate_passwordless_token!
+    self.reset_password_token = generate_token
+    self.reset_password_sent_at = Time.current
+    save!
+  end
+
+  private
+
+  def generate_token
+    SecureRandom.urlsafe_base64(32)
+  end
+end
+```
+
+### 5. コントローラーの実装
+```ruby
+# app/controllers/users/passwordless_sessions_controller.rb
+class Users::PasswordlessSessionsController < Devise::SessionsController
+  def create
+    self.resource = resource_class.find_by(email: params[:user][:email])
+    if resource
+      resource.generate_passwordless_token!
+      UserPasswordlessMailer.magic_link(resource).deliver_now
+      redirect_to root_path, notice: '認証メールを送信しました'
+    else
+      redirect_to new_user_passwordless_session_path, alert: 'メールアドレスが見つかりません'
+    end
+  end
+
+  def show
+    self.resource = resource_class.find_by(reset_password_token: params[:token])
+    if resource && resource.token_valid?
+      sign_in(resource)
+      redirect_to root_path
+    else
+      redirect_to new_user_passwordless_session_path, alert: '認証に失敗しました'
+    end
+  end
+
+  private
+
+  def token_valid?
+    reset_password_token.present? && 
+    reset_password_sent_at > 30.minutes.ago
+  end
+end
+```
+
+### 6. メーラーの実装
+```ruby
+# app/mailers/user_passwordless_mailer.rb
+class UserPasswordlessMailer < Devise::Mailer
+  def magic_link(record)
+    @user = record
+    @token = record.reset_password_token
+    @email = record.email
+    mail(
+      to: @email,
+      subject: '認証リンク'
+    )
+  end
+end
+```
+
+### 7. ビューの実装
+```erb
+<%# app/views/users/passwordless_sessions/new.html.erb %>
+<h2>ログイン</h2>
+
+<%= form_for(resource, as: resource_name, url: user_passwordless_session_path) do |f| %>
+  <div class="field">
+    <%= f.label :email %><br />
+    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "認証メールを送信" %>
+  </div>
+<% end %>
+```
+
+### 8. テストの実装
+```ruby
+# spec/models/user_spec.rb
+RSpec.describe User, type: :model do
+  describe '#generate_passwordless_token!' do
+    let(:user) { create(:user) }
+
+    it 'generates a token and updates sent_at' do
+      expect {
+        user.generate_passwordless_token!
+      }.to change { user.reset_password_token }.from(nil)
+        .and change { user.reset_password_sent_at }.from(nil)
+    end
+  end
+end
+
+# spec/controllers/users/passwordless_sessions_controller_spec.rb
+RSpec.describe Users::PasswordlessSessionsController, type: :controller do
+  describe 'POST #create' do
+    let(:user) { create(:user) }
+
+    context 'with valid email' do
+      it 'sends magic link email' do
+        expect {
+          post :create, params: { user: { email: user.email } }
+        }.to change { ActionMailer::Base.deliveries.count }.by(1)
+      end
+    end
+  end
+end
+
+# spec/mailers/user_passwordless_mailer_spec.rb
+RSpec.describe UserPasswordlessMailer, type: :mailer do
+  describe 'magic_link' do
+    let(:user) { create(:user) }
+    let(:mail) { described_class.magic_link(user) }
+
+    it 'renders the headers' do
+      expect(mail.subject).to eq('認証リンク')
+      expect(mail.to).to eq([user.email])
+    end
+
+    it 'renders the body' do
+      expect(mail.body.encoded).to match(/認証リンク/)
+    end
+  end
+end
+```
+
+### 9. トラブルシューティング
+詳細なトラブルシューティング情報は `docs/development/TROUBLESHOOTING.md` を参照してください。 
