@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :post do
     sequence(:title) { |n| "テスト投稿#{n}" }
     sequence(:content) { |n| "これはテスト投稿#{n}の内容です。" }
-    association :user
+    user
 
     trait :with_comments do
       after(:create) do |post|
