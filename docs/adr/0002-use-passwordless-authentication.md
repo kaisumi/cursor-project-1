@@ -30,6 +30,86 @@ SNSアプリケーションの認証方式を選択する必要があります�
    - IPアドレスベースの制限
    - 不正アクセス検知
 
+## 実装詳細
+
+### 1. 技術スタック
+- Devise: 認証基盤
+- Letter Opener: 開発環境でのメール送信テスト
+- Redis: セッションストア
+- Action Mailer: メール送信
+
+### 2. コンポーネント実装
+#### 2.1 モデル層
+```ruby
+class User < ApplicationRecord
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable,
+         :authentication_keys => [:email]
+
+  def password_required?
+    false
+  end
+
+  def email_required?
+    true
+  end
+end
+```
+
+#### 2.2 コントローラー層
+```ruby
+class Users::PasswordlessSessionsController < Devise::SessionsController
+  def create
+    self.resource = resource_class.find_by(email: params[:user][:email])
+    if resource
+      resource.generate_passwordless_token!
+      UserPasswordlessMailer.magic_link(resource).deliver_now
+      redirect_to root_path, notice: '認証メールを送信しました'
+    else
+      redirect_to new_user_passwordless_session_path, alert: 'メールアドレスが見つかりません'
+    end
+  end
+end
+```
+
+#### 2.3 メーラー層
+```ruby
+class UserPasswordlessMailer < Devise::Mailer
+  def magic_link(record)
+    @user = record
+    @token = record.reset_password_token
+    @email = record.email
+    mail(
+      to: @email,
+      subject: '認証リンク'
+    )
+  end
+end
+```
+
+### 3. セキュリティ実装
+- トークンの有効期限: 30分
+- レート制限: 1時間あたり5回まで
+- セッションタイムアウト: 24時間
+- セキュアなクッキー設定
+
+### 4. テスト戦略
+- モデルテスト: トークン生成と検証
+- コントローラーテスト: 認証フロー
+- メーラーテスト: メール送信
+- 統合テスト: エンドツーエンドの認証フロー
+
+### 5. 監視とログ
+- 認証イベントのログ記録
+- エラー監視と通知
+- パフォーマンスメトリクスの収集
+
+### 6. 今後の改善点
+- ソーシャルログインの追加
+- 2要素認証の実装
+- モバイルアプリ対応
+- 多言語対応
+
 ## 結果
 メリット：
 - パスワード管理の負担がない
