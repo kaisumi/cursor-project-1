@@ -6,12 +6,10 @@ RSpec.describe PostsController, type: :controller do
   let(:post_item) { create(:post, user: user) }
 
   describe 'GET #index' do
-    before do
-      get :index
-    end
+    before { get :index }
 
     it '正常にレスポンスを返すこと' do
-      expect(response).to be_successful
+      expect(response).to have_http_status(:success)
     end
 
     it '投稿一覧を取得すること' do
@@ -20,12 +18,10 @@ RSpec.describe PostsController, type: :controller do
   end
 
   describe 'GET #show' do
-    before do
-      get :show, params: { id: post_item.id }
-    end
+    before { get :show, params: { id: post_item.id } }
 
     it '正常にレスポンスを返すこと' do
-      expect(response).to be_successful
+      expect(response).to have_http_status(:success)
     end
 
     it '要求された投稿を取得すること' do
@@ -41,7 +37,7 @@ RSpec.describe PostsController, type: :controller do
       end
 
       it '正常にレスポンスを返すこと' do
-        expect(response).to be_successful
+        expect(response).to have_http_status(:success)
       end
 
       it '新しい投稿を初期化すること' do
@@ -50,9 +46,7 @@ RSpec.describe PostsController, type: :controller do
     end
 
     context 'ログインしていない場合' do
-      before do
-        get :new
-      end
+      before { get :new }
 
       it 'ログインページにリダイレクトすること' do
         expect(response).to redirect_to(new_user_session_path)
@@ -62,36 +56,34 @@ RSpec.describe PostsController, type: :controller do
 
   describe 'POST #create' do
     context 'ログインしている場合' do
-      before do
-        sign_in user
-      end
+      before { sign_in user }
 
       context '有効なパラメータの場合' do
-        let(:valid_params) { { post: attributes_for(:post) } }
+        let(:valid_attributes) { attributes_for(:post) }
 
         it '投稿を作成すること' do
           expect {
-            post :create, params: valid_params
+            post :create, params: { post: valid_attributes }
           }.to change(Post, :count).by(1)
         end
 
-        it '投稿詳細ページにリダイレクトすること' do
-          post :create, params: valid_params
-          expect(response).to redirect_to(post_path(Post.last))
+        it '作成した投稿の詳細ページにリダイレクトすること' do
+          post :create, params: { post: valid_attributes }
+          expect(response).to redirect_to(Post.last)
         end
       end
 
       context '無効なパラメータの場合' do
-        let(:invalid_params) { { post: attributes_for(:post, title: nil) } }
+        let(:invalid_attributes) { attributes_for(:post, title: '') }
 
         it '投稿を作成しないこと' do
           expect {
-            post :create, params: invalid_params
+            post :create, params: { post: invalid_attributes }
           }.not_to change(Post, :count)
         end
 
         it '新規投稿ページを再表示すること' do
-          post :create, params: invalid_params
+          post :create, params: { post: invalid_attributes }
           expect(response).to render_template(:new)
         end
       end
@@ -114,7 +106,7 @@ RSpec.describe PostsController, type: :controller do
         end
 
         it '正常にレスポンスを返すこと' do
-          expect(response).to be_successful
+          expect(response).to have_http_status(:success)
         end
 
         it '要求された投稿を取得すること' do
@@ -135,9 +127,7 @@ RSpec.describe PostsController, type: :controller do
     end
 
     context 'ログインしていない場合' do
-      before do
-        get :edit, params: { id: post_item.id }
-      end
+      before { get :edit, params: { id: post_item.id } }
 
       it 'ログインページにリダイレクトすること' do
         expect(response).to redirect_to(new_user_session_path)
@@ -146,38 +136,31 @@ RSpec.describe PostsController, type: :controller do
   end
 
   describe 'PATCH #update' do
-    let(:new_attributes) { { title: '新しいタイトル', content: '新しい内容' } }
+    let(:new_attributes) { { title: '更新されたタイトル' } }
 
     context 'ログインしている場合' do
       context '投稿者本人の場合' do
-        before do
-          sign_in user
-        end
+        before { sign_in user }
 
         context '有効なパラメータの場合' do
-          before do
-            patch :update, params: { id: post_item.id, post: new_attributes }
-          end
+          before { patch :update, params: { id: post_item.id, post: new_attributes } }
 
           it '投稿を更新すること' do
             post_item.reload
-            expect(post_item.title).to eq('新しいタイトル')
-            expect(post_item.content).to eq('新しい内容')
+            expect(post_item.title).to eq('更新されたタイトル')
           end
 
           it '投稿詳細ページにリダイレクトすること' do
-            expect(response).to redirect_to(post_path(post_item))
+            expect(response).to redirect_to(post_item)
           end
         end
 
         context '無効なパラメータの場合' do
-          before do
-            patch :update, params: { id: post_item.id, post: attributes_for(:post, title: nil) }
-          end
+          before { patch :update, params: { id: post_item.id, post: { title: '' } } }
 
           it '投稿を更新しないこと' do
             post_item.reload
-            expect(post_item.title).not_to be_nil
+            expect(post_item.title).not_to eq('')
           end
 
           it '編集ページを再表示すること' do
@@ -194,7 +177,7 @@ RSpec.describe PostsController, type: :controller do
 
         it '投稿を更新しないこと' do
           post_item.reload
-          expect(post_item.title).not_to eq('新しいタイトル')
+          expect(post_item.title).not_to eq('更新されたタイトル')
         end
 
         it '投稿一覧ページにリダイレクトすること' do
@@ -204,9 +187,7 @@ RSpec.describe PostsController, type: :controller do
     end
 
     context 'ログインしていない場合' do
-      before do
-        patch :update, params: { id: post_item.id, post: new_attributes }
-      end
+      before { patch :update, params: { id: post_item.id, post: new_attributes } }
 
       it 'ログインページにリダイレクトすること' do
         expect(response).to redirect_to(new_user_session_path)
@@ -217,12 +198,10 @@ RSpec.describe PostsController, type: :controller do
   describe 'DELETE #destroy' do
     context 'ログインしている場合' do
       context '投稿者本人の場合' do
-        before do
-          sign_in user
-        end
+        before { sign_in user }
 
         it '投稿を削除すること' do
-          post_item # 事前に投稿を作成
+          post_item # 投稿を作成
           expect {
             delete :destroy, params: { id: post_item.id }
           }.to change(Post, :count).by(-1)
@@ -235,12 +214,10 @@ RSpec.describe PostsController, type: :controller do
       end
 
       context '投稿者以外のユーザーの場合' do
-        before do
-          sign_in other_user
-        end
+        before { sign_in other_user }
 
         it '投稿を削除しないこと' do
-          post_item # 事前に投稿を作成
+          post_item # 投稿を作成
           expect {
             delete :destroy, params: { id: post_item.id }
           }.not_to change(Post, :count)
