@@ -16,4 +16,9 @@ Rails.application.routes.draw do
   namespace :users do
     resource :passwordless_session, only: [ :new, :create, :show ]
   end
+
+  resources :posts do
+    resources :comments, only: [ :create, :destroy ]
+    resources :likes, only: [ :create, :destroy ]
+  end
 end

@@ -5,10 +5,12 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          authentication_keys: [ :email ]
 
-  has_many :posts
-  has_many :comments
+  has_many :posts, dependent: :destroy
+  has_many :comments, dependent: :destroy
+  has_many :likes, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true
+  validates :name, presence: true, length: { maximum: 50 }
   validates :encrypted_password, presence: true
 
   # Remove the default password requirement
@@ -23,5 +25,10 @@ class User < ApplicationRecord
 
   def will_save_change_to_email?
     false
+  end
+
+  def avatar_url
+    # 実際のアバター画像の実装がない場合はnilを返す
+    nil
   end
 end
