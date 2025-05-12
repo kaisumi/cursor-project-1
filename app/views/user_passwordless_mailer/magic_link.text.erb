@@ -1,0 +1,7 @@
+<%= @user.email %> 様
+
+ログインするには以下のリンクをクリックしてください。
+
+<%= users_passwordless_session_url(token: @token) %>
+
+このリンクは30分間有効です。 

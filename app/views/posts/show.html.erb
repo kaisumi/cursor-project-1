@@ -1,0 +1,77 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="p-6">
+      <div class="flex items-center mb-6">
+        <div class="flex-shrink-0">
+          <%= image_tag(@post.user.avatar_url || asset_path('default_avatar.png'), class: 'h-12 w-12 rounded-full') %>
+        </div>
+        <div class="ml-4">
+          <p class="text-lg font-medium text-gray-900">
+            <%= @post.user.name %>
+          </p>
+          <p class="text-sm text-gray-500">
+            <%= l @post.created_at, format: :long %>
+          </p>
+        </div>
+      </div>
+
+      <h1 class="text-3xl font-bold mb-4"><%= @post.title %></h1>
+      
+      <div class="prose max-w-none mb-8">
+        <%= simple_format @post.content %>
+      </div>
+
+      <div class="flex items-center justify-between border-t pt-4">
+        <div class="flex space-x-6">
+          <div class="flex items-center space-x-2">
+            <i class="far fa-comment text-gray-500"></i>
+            <span class="text-gray-600"><%= @post.comments.count %></span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <i class="far fa-heart text-gray-500"></i>
+            <span class="text-gray-600"><%= @post.likes.count %></span>
+          </div>
+        </div>
+
+        <% if @post.editable_by?(current_user) %>
+          <div class="flex space-x-4">
+            <%= link_to '編集', edit_post_path(@post), class: 'text-blue-600 hover:text-blue-800 font-medium' %>
+            <%= button_to '削除', post_path(@post), method: :delete, class: 'text-red-600 hover:text-red-800 font-medium', form: { data: { turbo_confirm: '本当に削除しますか？' } } %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="bg-gray-50 px-6 py-4">
+      <h2 class="text-xl font-semibold mb-4">コメント</h2>
+      
+      <% if user_signed_in? %>
+        <%= form_with(model: [@post, Comment.new], local: true, class: 'mb-6') do |f| %>
+          <div class="mb-4">
+            <%= f.text_area :content, rows: 3, class: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500', placeholder: 'コメントを入力...' %>
+          </div>
+          <%= f.submit 'コメントする', class: 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' %>
+        <% end %>
+      <% end %>
+
+      <div class="space-y-4">
+        <% @post.comments.includes(:user).each do |comment| %>
+          <div class="flex space-x-4">
+            <div class="flex-shrink-0">
+              <%= image_tag(comment.user.avatar_url || asset_path('default_avatar.png'), class: 'h-10 w-10 rounded-full') %>
+            </div>
+            <div class="flex-grow">
+              <div class="bg-white rounded-lg p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-medium text-gray-900"><%= comment.user.name %></span>
+                  <span class="text-sm text-gray-500"><%= time_ago_in_words(comment.created_at) %>前</span>
+                </div>
+                <p class="text-gray-700"><%= comment.content %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

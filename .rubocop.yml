@@ -1,0 +1,38 @@
+# Omakase Ruby styling for Rails
+inherit_gem:
+  rubocop-rails-omakase: rubocop.yml
+
+require:
+  - rubocop-rspec
+
+# RSpec specific configurations
+RSpec:
+  Enabled: true
+
+# Exclude generated files and vendor
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.4
+  Exclude:
+    - 'bin/**/*'
+    - 'db/schema.rb'
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'node_modules/**/*'
+
+# Allow longer examples in tests
+RSpec/ExampleLength:
+  Max: 10
+  CountAsOne: ['array', 'hash', 'heredoc']
+
+# Allow multiple expectations in tests
+RSpec/MultipleExpectations:
+  Max: 5
+
+# Prefer :focus over fit
+RSpec/Focus:
+  EnforcedStyle: :focus
+
+# Overwrite or add rules to create your own house style
+#
+# # Use `[a, [b, c]]`
