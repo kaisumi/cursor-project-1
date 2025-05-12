@@ -1,0 +1,16 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-8">投稿一覧</h1>
+
+  <% if @posts.any? %>
+    <div class="grid gap-6">
+      <% @posts.each do |post| %>
+        <div class="bg-white shadow rounded-lg p-6">
+          <h2 class="text-xl font-semibold mb-2"><%= post.title %></h2>
+          <p class="text-gray-600"><%= post.content %></p>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-600">まだ投稿がありません。</p>
+  <% end %>
+</div> 
