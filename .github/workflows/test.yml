@@ -37,9 +37,16 @@ jobs:
       RAILS_ENV: test
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/rails_test
       REDIS_URL: redis://localhost:6379/0
+      COVERAGE: true
+      MIN_COVERAGE: 90
 
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
       
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -55,14 +62,38 @@ jobs:
           bundle exec rails db:create
           bundle exec rails db:schema:load
       
-      - name: Run tests
-        run: bundle exec rspec
+      - name: Run unit tests
+        run: bundle exec rspec spec/models spec/mailers
+      
+      - name: Run integration tests
+        run: bundle exec rspec spec/requests spec/controllers
+      
+      - name: Run system tests
+        run: bundle exec rspec spec/system
       
       - name: Run Rubocop
-        run: bundle exec rubocop
+        run: |
+          bundle exec rubocop --format progress
+          bundle exec rubocop --format github
+      
+      - name: Run Rails Best Practices
+        run: bundle exec rails_best_practices .
       
       - name: Run Brakeman
         run: bundle exec brakeman -q -w2
+
+      - name: Check test coverage
+        run: |
+          if [ -f coverage/.last_run.json ]; then
+            coverage=$(jq '.result.covered_percent' coverage/.last_run.json)
+            if (( $(echo "$coverage < $MIN_COVERAGE" | bc -l) )); then
+              echo "Test coverage ($coverage%) is below the minimum required ($MIN_COVERAGE%)"
+              exit 1
+            fi
+          else
+            echo "Coverage report not found"
+            exit 1
+          fi
 
       - name: Upload coverage results
         uses: actions/upload-artifact@v4
