@@ -5,6 +5,7 @@
 - [コーディング規約](#コーディング規約)
 - [Git運用ルール](#git運用ルール)
 - [品質管理](#品質管理)
+- [投稿機能の実装](#投稿機能の実装)
 
 ## 開発環境のセットアップ
 
@@ -383,3 +384,122 @@ end
 
 ### 9. トラブルシューティング
 詳細なトラブルシューティング情報は `docs/development/TROUBLESHOOTING.md` を参照してください。 
+
+## 投稿機能の実装
+
+### 1. モデル構成
+```ruby
+# app/models/post.rb
+class Post < ApplicationRecord
+  belongs_to :user
+  has_many :comments, dependent: :destroy
+  has_many :likes, dependent: :destroy
+
+  validates :title, presence: true, length: { maximum: 100 }
+  validates :content, presence: true, length: { maximum: 10000 }
+  validates :user_id, presence: true
+
+  def editable_by?(user)
+    return false if user.nil?
+    self.user_id == user.id
+  end
+
+  def liked_by?(user)
+    return false if user.nil?
+    likes.exists?(user_id: user.id)
+  end
+end
+
+# app/models/like.rb
+class Like < ApplicationRecord
+  belongs_to :user
+  belongs_to :post
+
+  validates :user_id, uniqueness: { scope: :post_id }
+end
+```
+
+### 2. コントローラの実装
+```ruby
+# app/controllers/posts_controller.rb
+class PostsController < ApplicationController
+  before_action :set_post, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_user!, except: [:index, :show]
+  before_action :authorize_user!, only: [:edit, :update, :destroy]
+
+  def index
+    @posts = Post.includes(:user, :comments, :likes).order(created_at: :desc)
+  end
+
+  def show
+  end
+
+  def new
+    @post = Post.new
+  end
+
+  def create
+    @post = current_user.posts.build(post_params)
+    if @post.save
+      redirect_to @post, notice: '投稿を作成しました'
+    else
+      render :new
+    end
+  end
+
+  def edit
+  end
+
+  def update
+    if @post.update(post_params)
+      redirect_to @post, notice: '投稿を更新しました'
+    else
+      render :edit
+    end
+  end
+
+  def destroy
+    @post.destroy
+    redirect_to posts_path, notice: '投稿を削除しました'
+  end
+
+  private
+
+  def set_post
+    @post = Post.find(params[:id])
+  end
+
+  def post_params
+    params.require(:post).permit(:title, :content)
+  end
+
+  def authorize_user!
+    unless @post.editable_by?(current_user)
+      redirect_to posts_path, alert: '権限がありません'
+    end
+  end
+end
+```
+
+### 3. ビューの構成
+- `app/views/posts/index.html.erb`: 投稿一覧表示
+- `app/views/posts/show.html.erb`: 投稿詳細表示
+- `app/views/posts/new.html.erb`: 新規投稿フォーム
+- `app/views/posts/edit.html.erb`: 投稿編集フォーム
+- `app/views/posts/_form.html.erb`: 投稿フォームパーシャル
+
+### 4. テストの実装
+- モデルスペック: バリデーションとメソッドのテスト
+- コントローラスペック: アクションとレスポンスのテスト
+- システムスペック: ユーザーインターフェースのテスト
+
+### 5. ルーティング
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  resources :posts do
+    resources :comments, only: [:create, :destroy]
+    resources :likes, only: [:create, :destroy]
+  end
+end
+``` 
