@@ -17,27 +17,29 @@
           <h1 class="text-2xl font-bold"><%= @user.name %></h1>
           
           <!-- フォローボタン -->
-          <% if user_signed_in? && current_user != @user %>
-            <div class="mt-2 md:mt-0">
-              <% if current_user.following?(@user) %>
-                <%= button_to 'フォロー中', relationship_path(@user), 
-          <% end %>
+          <%= render 'users/follow_button', user: @user %>
         </div>
-        <div>
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
-            <%= @user.name %> <span class="text-gray-500">@<%= @user.username %></span>
-          </h3>
+        
+        <div class="mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">@<%= @user.username %></h2>
           <% if @user.bio.present? %>
-            <p class="mt-1 text-sm text-gray-600"><%= @user.bio %></p>
-          <%= link_to user_following_path(@user), class: 'hover:underline' do %>
-            <span class="font-semibold text-gray-900"><%= @user.following.count %></span>
-            <span> フォロー中</span>
-          <% end %>
-          <%= link_to user_followers_path(@user), class: 'hover:underline' do %>
-            <span class="font-semibold text-gray-900"><%= @user.followers.count %></span>
-            <span> フォロワー</span>
+            <p class="mt-2 text-gray-600"><%= @user.bio %></p>
           <% end %>
         </div>
+        
+        <div class="flex space-x-6 text-sm text-gray-500">
+          <%= link_to user_following_path(@user), class: 'hover:text-gray-700' do %>
+            <span class="block font-semibold text-gray-900"><%= @user.following.count %></span>
+            <span>フォロー中</span>
+          <% end %>
+          <%= link_to user_followers_path(@user), class: 'hover:text-gray-700' do %>
+            <span id="followers-count-<%= @user.id %>" class="block font-semibold text-gray-900">
+              <%= @user.followers.count %>
+            </span>
+            <span>フォロワー</span>
+          <% end %>
+        </div>
+      </div>
       </div>
     </div>
   </div>

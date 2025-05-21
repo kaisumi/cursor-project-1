@@ -1,0 +1,21 @@
+<%# フォローボタンの部分テンプレート %>
+<% if current_user && current_user != user %>
+  <div id="<%= dom_id(user, :follow_button) %>" class="mt-2">
+    <% if current_user.following?(user) %>
+      <%= button_to "フォロー中", relationship_path(user), 
+          method: :delete,
+          class: 'px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
+          form: { 
+            class: 'inline',
+            data: { 
+              turbo_method: :delete,
+              turbo_confirm: 'フォローを解除しますか？'
+            } 
+          } %>
+    <% else %>
+      <%= button_to "フォローする", relationships_path(followed_id: user.id),
+          class: 'px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
+          form: { class: 'inline' } %>
+    <% end %>
+  </div>
+<% end %>
