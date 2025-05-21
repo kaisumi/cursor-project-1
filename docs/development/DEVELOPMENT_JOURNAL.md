@@ -201,7 +201,7 @@
     - インタラクションの追加
 
 ### 開発環境の状態
-- Ruby: 3.2.x
+- Ruby: 3.4.1
 - Rails: 7/8
 - PostgreSQL: 14
 - Redis: 7
