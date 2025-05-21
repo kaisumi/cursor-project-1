@@ -1,44 +1,38 @@
 Rails.application.routes.draw do
-  get "users/show"
-  get "users/following"
-  get "users/followers"
+  # Devise のルーティング
   devise_for :users, controllers: {
-    registrations: 'users/registrations'
+    registrations: 'users/registrations',
+    sessions: 'users/sessions'
   }
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-  
-  # フォロー機能のルーティング
-  resources :relationships, only: [:create, :destroy] do
-    collection do
-      get 'followers'
-      get 'following'
-    end
-  end
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  # ルートパス
+  root "posts#index"
+  
+  # ヘルスチェック
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  root "posts#index"
-
-  namespace :users do
-    resource :passwordless_session, only: [ :new, :create, :show ]
-  end
-
-  resources :posts do
-    resources :comments, only: [ :create, :destroy ]
-    resources :likes, only: [ :create, :destroy ]
-  end
-  
-  # ユーザープロフィール表示用
+  # ユーザー関連
   resources :users, only: [:show] do
     member do
       get :following, :followers
     end
   end
+
+  # フォロー機能
+  resources :relationships, only: [:create, :destroy]
+
+  # 投稿関連
+  resources :posts do
+    resources :comments, only: [:create, :destroy]
+    resources :likes, only: [:create, :destroy]
+  end
+
+  # パスワードレス認証
+  namespace :users do
+    resource :passwordless_session, only: [:new, :create, :show]
+  end
+
+  # PWA関連（必要に応じてコメントアウトを解除）
+  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 end
