@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_many :posts, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :likes, dependent: :destroy
+  has_one_attached :avatar
 
   validates :email, presence: true, uniqueness: true
   validates :name, presence: true, length: { maximum: 50 }
@@ -28,7 +29,6 @@ class User < ApplicationRecord
   end
 
   def avatar_url
-    # 実際のアバター画像の実装がない場合はnilを返す
-    nil
+    avatar.attached? ? avatar : nil
   end
 end

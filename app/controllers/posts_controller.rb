@@ -1,10 +1,10 @@
 class PostsController < ApplicationController
-  before_action :authenticate_user!, except: [ :index, :show ]
-  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
-  before_action :ensure_correct_user, only: [ :edit, :update, :destroy ]
+  before_action :authenticate_user!, except: [:index, :show]
+  before_action :set_post, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_user!, only: [:edit, :update, :destroy]
 
   def index
-    @posts = Post.includes(:user).order(created_at: :desc)
+    @posts = Post.all.order(created_at: :desc)
   end
 
   def show
@@ -18,7 +18,7 @@ class PostsController < ApplicationController
     @post = current_user.posts.build(post_params)
 
     if @post.save
-      redirect_to @post, notice: "\u6295\u7A3F\u3092\u4F5C\u6210\u3057\u307E\u3057\u305F"
+      redirect_to @post, notice: '投稿が作成されました。'
     else
       render :new, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class PostsController < ApplicationController
 
   def update
     if @post.update(post_params)
-      redirect_to @post, notice: "\u6295\u7A3F\u3092\u66F4\u65B0\u3057\u307E\u3057\u305F"
+      redirect_to @post, notice: '投稿が更新されました。'
     else
       render :edit, status: :unprocessable_entity
     end
@@ -37,7 +37,7 @@ class PostsController < ApplicationController
 
   def destroy
     @post.destroy
-    redirect_to posts_path, notice: "\u6295\u7A3F\u3092\u524A\u9664\u3057\u307E\u3057\u305F"
+    redirect_to posts_path, notice: '投稿が削除されました。'
   end
 
   private
@@ -50,9 +50,9 @@ class PostsController < ApplicationController
     params.require(:post).permit(:title, :content)
   end
 
-  def ensure_correct_user
-    unless @post.user == current_user
-      redirect_to posts_path, alert: "\u6A29\u9650\u304C\u3042\u308A\u307E\u305B\u3093"
+  def authorize_user!
+    unless @post.editable_by?(current_user)
+      redirect_to root_path, alert: '権限がありません。'
     end
   end
 end

@@ -1,0 +1,72 @@
+ja:
+  activerecord:
+    errors:
+      messages:
+        blank: を入力してください
+        taken: はすでに存在します
+        too_short:
+          one: は1文字以上で入力してください
+          other: は%{count}文字以上で入力してください
+        too_long:
+          one: は1文字以内で入力してください
+          other: は%{count}文字以内で入力してください
+        wrong_length:
+          one: は1文字で入力してください
+          other: は%{count}文字で入力してください
+        not_a_number: 数値で入力してください
+        greater_than:
+          one: は1より大きい値にしてください
+          other: は%{count}より大きい値にしてください
+        greater_than_or_equal_to:
+          one: は1以上の値にしてください
+          other: は%{count}以上の値にしてください
+        equal_to:
+          one: は1にしてください
+          other: は%{count}にしてください
+        less_than:
+          one: は1より小さい値にしてください
+          other: は%{count}より小さい値にしてください
+        less_than_or_equal_to:
+          one: は1以下の値にしてください
+          other: は%{count}以下の値にしてください
+        other_than:
+          one: は1以外の値にしてください
+          other: は%{count}以外の値にしてください
+        odd: 奇数で入力してください
+        even: 偶数で入力してください
+        confirmation: と確認用の値が一致しません
+        accepted: を受諾してください
+        empty: を入力してください
+        present: は入力しないでください
+        required: を入力してください
+        exclusion: は予約語です
+        inclusion: は一覧にありません
+        invalid: は不正な値です
+        model_invalid: "入力内容にエラーがあります: %{errors}"
+    models:
+      post:
+        attributes:
+          title:
+            blank: タイトルを入力してください
+          content:
+            blank: 内容を入力してください
+  time:
+    formats:
+      default: "%Y/%m/%d %H:%M"
+      short: "%m/%d %H:%M"
+      long: "%Y年%m月%d日 %H時%M分"
+  date:
+    formats:
+      default: "%Y/%m/%d"
+      short: "%m/%d"
+      long: "%Y年%m月%d日"
+  posts:
+    show:
+      edit: 編集
+      delete: 削除
+      comment: コメント
+      confirmation:
+        title: 投稿の削除
+        message: この投稿を削除してもよろしいですか？この操作は取り消せません。
+        confirm: 削除する
+        cancel: キャンセル 
