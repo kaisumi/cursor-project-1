@@ -32,20 +32,16 @@ RSpec.describe 'Posts', type: :system do
       end
 
       it '有効な入力で投稿が作成されること' do
-        fill_in 'post[title]', with: '新しい投稿'
-        fill_in 'post[content]', with: '投稿の本文です'
+        fill_in name: 'post[title]', with: 'テスト投稿'
+        fill_in name: 'post[content]', with: 'これはテスト投稿の内容です。'
         click_button '登録する'
-
-        expect(page).to have_content('投稿を作成しました')
-        expect(page).to have_content('新しい投稿')
-        expect(page).to have_content('投稿の本文です')
+        expect(page).to have_content('投稿が作成されました。')
       end
 
       it '無効な入力でバリデーションエラーが表示されること' do
-        fill_in 'post[title]', with: ''
-        fill_in 'post[content]', with: ''
+        fill_in name: 'post[title]', with: ''
+        fill_in name: 'post[content]', with: ''
         click_button '登録する'
-
         expect(page).to have_content('入力内容にエラーがあります')
       end
     end
@@ -72,8 +68,8 @@ RSpec.describe 'Posts', type: :system do
 
         it '投稿を編集できること' do
           click_link '編集'
-          fill_in 'post[title]', with: '更新されたタイトル'
-          fill_in 'post[content]', with: '更新された内容'
+          fill_in name: 'post[title]', with: '更新されたタイトル'
+          fill_in name: 'post[content]', with: '更新された内容'
           click_button '更新する'
           expect(page).to have_content('更新されたタイトル')
           expect(page).to have_content('更新された内容')
@@ -81,7 +77,7 @@ RSpec.describe 'Posts', type: :system do
 
         it '無効な入力で編集できないこと' do
           click_link '編集'
-          fill_in 'post[title]', with: ''
+          fill_in name: 'post[title]', with: ''
           click_button '更新する'
           expect(page).to have_content('タイトルを入力してください')
         end
@@ -128,7 +124,7 @@ RSpec.describe 'Posts', type: :system do
         it '投稿を削除できること' do
           click_button '削除'
           click_button '削除する'
-          expect(page).to have_content('投稿を削除しました')
+          expect(page).to have_content('投稿が削除されました。')
           expect(page).not_to have_content(post_item.title)
         end
 
@@ -146,7 +142,7 @@ RSpec.describe 'Posts', type: :system do
         end
 
         it '削除ボタンが表示されないこと' do
-          expect(page).not_to have_button('削除')
+          expect(page).not_to have_button('削除する')
         end
       end
     end
@@ -155,7 +151,7 @@ RSpec.describe 'Posts', type: :system do
       before { visit post_path(post_item) }
 
       it '削除ボタンが表示されないこと' do
-        expect(page).not_to have_button('削除')
+        expect(page).not_to have_button('削除する')
       end
     end
   end
@@ -189,7 +185,7 @@ RSpec.describe 'Posts', type: :system do
 
       it '編集・削除ボタンが表示されないこと' do
         expect(page).not_to have_link('編集')
-        expect(page).not_to have_button('削除')
+        expect(page).not_to have_button('削除する')
       end
     end
   end

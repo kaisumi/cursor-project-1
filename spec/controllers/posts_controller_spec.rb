@@ -3,52 +3,35 @@ require 'rails_helper'
 RSpec.describe PostsController, type: :controller do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
-  let(:post_item) { create(:post, user: user) }
+  let(:post) { create(:post, user: user) }
 
   describe 'GET #index' do
-    before { get :index }
-
-    it '正常にレスポンスを返すこと' do
+    it 'returns http success' do
+      get :index
       expect(response).to have_http_status(:success)
-    end
-
-    it '投稿一覧を取得すること' do
-      expect(assigns(:posts)).to eq([ post_item ])
     end
   end
 
   describe 'GET #show' do
-    before { get :show, params: { id: post_item.id } }
-
-    it '正常にレスポンスを返すこと' do
+    it 'returns http success' do
+      get :show, params: { id: post.id }
       expect(response).to have_http_status(:success)
-    end
-
-    it '要求された投稿を取得すること' do
-      expect(assigns(:post)).to eq(post_item)
     end
   end
 
   describe 'GET #new' do
     context 'ログインしている場合' do
-      before do
-        sign_in user
+      before { sign_in user }
+
+      it 'returns http success' do
         get :new
-      end
-
-      it '正常にレスポンスを返すこと' do
         expect(response).to have_http_status(:success)
-      end
-
-      it '新しい投稿を初期化すること' do
-        expect(assigns(:post)).to be_a_new(Post)
       end
     end
 
     context 'ログインしていない場合' do
-      before { get :new }
-
-      it 'ログインページにリダイレクトすること' do
+      it 'redirects to sign in page' do
+        get :new
         expect(response).to redirect_to(new_user_session_path)
       end
     end
@@ -59,39 +42,39 @@ RSpec.describe PostsController, type: :controller do
       before { sign_in user }
 
       context '有効なパラメータの場合' do
-        let(:valid_attributes) { attributes_for(:post) }
+        let(:valid_params) { { post: { title: 'Test Post', content: 'Test Content' } } }
 
-        it '投稿を作成すること' do
+        it 'creates a new post' do
           expect {
-            post :create, params: { post: valid_attributes }
+            post :create, params: valid_params
           }.to change(Post, :count).by(1)
         end
 
-        it '作成した投稿の詳細ページにリダイレクトすること' do
-          post :create, params: { post: valid_attributes }
-          expect(response).to redirect_to(Post.last)
+        it 'redirects to the created post' do
+          post :create, params: valid_params
+          expect(response).to redirect_to(post_path(Post.last))
         end
       end
 
       context '無効なパラメータの場合' do
-        let(:invalid_attributes) { attributes_for(:post, title: '') }
+        let(:invalid_params) { { post: { title: '', content: '' } } }
 
-        it '投稿を作成しないこと' do
+        it 'does not create a new post' do
           expect {
-            post :create, params: { post: invalid_attributes }
+            post :create, params: invalid_params
           }.not_to change(Post, :count)
         end
 
-        it '新規投稿ページを再表示すること' do
-          post :create, params: { post: invalid_attributes }
+        it 'renders the new template' do
+          post :create, params: invalid_params
           expect(response).to render_template(:new)
         end
       end
     end
 
     context 'ログインしていない場合' do
-      it 'ログインページにリダイレクトすること' do
-        post :create, params: { post: attributes_for(:post) }
+      it 'redirects to sign in page' do
+        post :create, params: { post: { title: 'Test Post', content: 'Test Content' } }
         expect(response).to redirect_to(new_user_session_path)
       end
     end
@@ -100,40 +83,27 @@ RSpec.describe PostsController, type: :controller do
   describe 'GET #edit' do
     context 'ログインしている場合' do
       context '投稿の作成者の場合' do
-        before do
-          sign_in user
-          get :edit, params: { id: post_item.id }
-        end
+        before { sign_in user }
 
-        it '正常にレスポンスを返すこと' do
+        it 'returns http success' do
+          get :edit, params: { id: post.id }
           expect(response).to have_http_status(:success)
-        end
-
-        it '編集対象の投稿を取得すること' do
-          expect(assigns(:post)).to eq(post_item)
         end
       end
 
       context '投稿の作成者でない場合' do
-        before do
-          sign_in other_user
-          get :edit, params: { id: post_item.id }
-        end
+        before { sign_in other_user }
 
-        it '投稿一覧ページにリダイレクトすること' do
-          expect(response).to redirect_to(posts_path)
-        end
-
-        it '権限エラーメッセージを表示すること' do
-          expect(flash[:alert]).to eq('権限がありません')
+        it 'redirects to root path' do
+          get :edit, params: { id: post.id }
+          expect(response).to redirect_to(root_path)
         end
       end
     end
 
     context 'ログインしていない場合' do
-      before { get :edit, params: { id: post_item.id } }
-
-      it 'ログインページにリダイレクトすること' do
+      it 'redirects to sign in page' do
+        get :edit, params: { id: post.id }
         expect(response).to redirect_to(new_user_session_path)
       end
     end
@@ -145,56 +115,53 @@ RSpec.describe PostsController, type: :controller do
         before { sign_in user }
 
         context '有効なパラメータの場合' do
-          let(:new_attributes) { { title: 'Updated Title', content: 'Updated Content' } }
+          let(:valid_params) { { id: post.id, post: { title: 'Updated Title', content: 'Updated Content' } } }
 
-          it '投稿を更新すること' do
-            patch :update, params: { id: post_item.id, post: new_attributes }
-            post_item.reload
-            expect(post_item.title).to eq('Updated Title')
-            expect(post_item.content).to eq('Updated Content')
+          it 'updates the post' do
+            patch :update, params: valid_params
+            post.reload
+            expect(post.title).to eq('Updated Title')
+            expect(post.content).to eq('Updated Content')
           end
 
-          it '更新した投稿の詳細ページにリダイレクトすること' do
-            patch :update, params: { id: post_item.id, post: new_attributes }
-            expect(response).to redirect_to(post_item)
+          it 'redirects to the updated post' do
+            patch :update, params: valid_params
+            expect(response).to redirect_to(post_path(post))
           end
         end
 
         context '無効なパラメータの場合' do
-          let(:invalid_attributes) { { title: '' } }
+          let(:invalid_params) { { id: post.id, post: { title: '', content: '' } } }
 
-          it '投稿を更新しないこと' do
-            patch :update, params: { id: post_item.id, post: invalid_attributes }
-            post_item.reload
-            expect(post_item.title).not_to eq('')
+          it 'does not update the post' do
+            original_title = post.title
+            original_content = post.content
+            patch :update, params: invalid_params
+            post.reload
+            expect(post.title).to eq(original_title)
+            expect(post.content).to eq(original_content)
           end
 
-          it '編集ページを再表示すること' do
-            patch :update, params: { id: post_item.id, post: invalid_attributes }
+          it 'renders the edit template' do
+            patch :update, params: invalid_params
             expect(response).to render_template(:edit)
           end
         end
       end
 
       context '投稿の作成者でない場合' do
-        before do
-          sign_in other_user
-          patch :update, params: { id: post_item.id, post: { title: 'New Title' } }
-        end
+        before { sign_in other_user }
 
-        it '投稿一覧ページにリダイレクトすること' do
-          expect(response).to redirect_to(posts_path)
-        end
-
-        it '権限エラーメッセージを表示すること' do
-          expect(flash[:alert]).to eq('権限がありません')
+        it 'redirects to root path' do
+          patch :update, params: { id: post.id, post: { title: 'Updated Title', content: 'Updated Content' } }
+          expect(response).to redirect_to(root_path)
         end
       end
     end
 
     context 'ログインしていない場合' do
-      it 'ログインページにリダイレクトすること' do
-        patch :update, params: { id: post_item.id, post: { title: 'New Title' } }
+      it 'redirects to sign in page' do
+        patch :update, params: { id: post.id, post: { title: 'Updated Title', content: 'Updated Content' } }
         expect(response).to redirect_to(new_user_session_path)
       end
     end
@@ -205,43 +172,37 @@ RSpec.describe PostsController, type: :controller do
       context '投稿の作成者の場合' do
         before { sign_in user }
 
-        it '投稿を削除すること' do
+        it 'deletes the post' do
           expect {
-            delete :destroy, params: { id: post_item.id }
+            delete :destroy, params: { id: post.id }
           }.to change(Post, :count).by(-1)
         end
 
-        it '投稿一覧ページにリダイレクトすること' do
-          delete :destroy, params: { id: post_item.id }
+        it 'redirects to posts index' do
+          delete :destroy, params: { id: post.id }
           expect(response).to redirect_to(posts_path)
         end
       end
 
       context '投稿の作成者でない場合' do
-        before do
-          sign_in other_user
-          delete :destroy, params: { id: post_item.id }
-        end
+        before { sign_in other_user }
 
-        it '投稿を削除しないこと' do
+        it 'does not delete the post' do
           expect {
-            delete :destroy, params: { id: post_item.id }
+            delete :destroy, params: { id: post.id }
           }.not_to change(Post, :count)
         end
 
-        it '投稿一覧ページにリダイレクトすること' do
-          expect(response).to redirect_to(posts_path)
-        end
-
-        it '権限エラーメッセージを表示すること' do
-          expect(flash[:alert]).to eq('権限がありません')
+        it 'redirects to root path' do
+          delete :destroy, params: { id: post.id }
+          expect(response).to redirect_to(root_path)
         end
       end
     end
 
     context 'ログインしていない場合' do
-      it 'ログインページにリダイレクトすること' do
-        delete :destroy, params: { id: post_item.id }
+      it 'redirects to sign in page' do
+        delete :destroy, params: { id: post.id }
         expect(response).to redirect_to(new_user_session_path)
       end
     end

@@ -6,11 +6,13 @@ export default class extends Controller {
   connect() {
     this.confirmButtonTarget.addEventListener("click", this.handleConfirm.bind(this))
     this.cancelButtonTarget.addEventListener("click", this.handleCancel.bind(this))
+    this.overlayTarget.addEventListener("click", this.handleCancel.bind(this))
   }
 
   disconnect() {
     this.confirmButtonTarget.removeEventListener("click", this.handleConfirm.bind(this))
     this.cancelButtonTarget.removeEventListener("click", this.handleCancel.bind(this))
+    this.overlayTarget.removeEventListener("click", this.handleCancel.bind(this))
   }
 
   confirm(event) {
@@ -21,7 +23,7 @@ export default class extends Controller {
   handleConfirm() {
     const form = this.element.closest("form")
     if (form) {
-      form.requestSubmit()
+      form.submit()
     }
   }
 
