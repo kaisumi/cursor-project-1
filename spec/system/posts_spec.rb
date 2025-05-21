@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Posts', type: :system do
   let(:user) { create(:user) }
   let!(:post_item) { create(:post, user: user) }
+  let(:other_user) { create(:user) }
 
   before do
     driven_by(:selenium_chrome_headless)
@@ -58,65 +59,102 @@ RSpec.describe 'Posts', type: :system do
   end
 
   describe '投稿編集' do
-    context '投稿者本人の場合' do
-      before do
-        sign_in user
-        visit edit_post_path(post_item)
+    context 'ログインしている場合' do
+      context '投稿の作成者の場合' do
+        before do
+          sign_in user
+          visit post_path(post_item)
+        end
+
+        it '編集リンクが表示されること' do
+          expect(page).to have_link('編集')
+        end
+
+        it '投稿を編集できること' do
+          click_link '編集'
+          fill_in 'post[title]', with: '更新されたタイトル'
+          fill_in 'post[content]', with: '更新された内容'
+          click_button '更新する'
+          expect(page).to have_content('更新されたタイトル')
+          expect(page).to have_content('更新された内容')
+        end
+
+        it '無効な入力で編集できないこと' do
+          click_link '編集'
+          fill_in 'post[title]', with: ''
+          click_button '更新する'
+          expect(page).to have_content('タイトルを入力してください')
+        end
       end
 
-      it '有効な入力で投稿が更新されること' do
-        fill_in 'post[title]', with: '更新された投稿'
-        fill_in 'post[content]', with: '更新された本文です'
-        click_button '更新する'
+      context '投稿の作成者でない場合' do
+        before do
+          sign_in other_user
+          visit post_path(post_item)
+        end
 
-        expect(page).to have_content('投稿を更新しました')
-        expect(page).to have_content('更新された投稿')
-        expect(page).to have_content('更新された本文です')
-      end
-
-      it '無効な入力でバリデーションエラーが表示されること' do
-        fill_in 'post[title]', with: ''
-        click_button '更新する'
-
-        expect(page).to have_content('入力内容にエラーがあります')
+        it '編集リンクが表示されないこと' do
+          expect(page).not_to have_link('編集')
+        end
       end
     end
 
-    context '投稿者以外のユーザーの場合' do
-      let(:other_user) { create(:user) }
+    context 'ログインしていない場合' do
+      before { visit post_path(post_item) }
 
-      it '編集ページにアクセスできないこと' do
-        sign_in other_user
-        visit edit_post_path(post_item)
-        expect(page).to have_current_path(posts_path)
-        expect(page).to have_content('権限がありません')
+      it '編集リンクが表示されないこと' do
+        expect(page).not_to have_link('編集')
       end
     end
   end
 
   describe '投稿削除' do
-    context '投稿者本人の場合' do
-      before do
-        sign_in user
-        visit post_path(post_item)
-      end
-
-      it '投稿が削除されること' do
-        accept_confirm do
-          click_button '削除'
+    context 'ログインしている場合' do
+      context '投稿の作成者の場合' do
+        before do
+          sign_in user
+          visit post_path(post_item)
         end
 
-        expect(page).to have_content('投稿を削除しました')
-        expect(page).not_to have_content(post_item.title)
+        it '削除ボタンが表示されること' do
+          expect(page).to have_button('削除')
+        end
+
+        it '確認ダイアログが表示されること' do
+          click_button '削除'
+          expect(page).to have_content('この投稿を削除してもよろしいですか？')
+        end
+
+        it '投稿を削除できること' do
+          click_button '削除'
+          click_button '削除する'
+          expect(page).to have_content('投稿を削除しました')
+          expect(page).not_to have_content(post_item.title)
+        end
+
+        it 'キャンセルで削除を中止できること' do
+          click_button '削除'
+          click_button 'キャンセル'
+          expect(page).to have_content(post_item.title)
+        end
+      end
+
+      context '投稿の作成者でない場合' do
+        before do
+          sign_in other_user
+          visit post_path(post_item)
+        end
+
+        it '削除ボタンが表示されないこと' do
+          expect(page).not_to have_button('削除')
+        end
       end
     end
 
-    context '投稿者以外のユーザーの場合' do
-      let(:other_user) { create(:user) }
+    context 'ログインしていない場合' do
+      before { visit post_path(post_item) }
 
       it '削除ボタンが表示されないこと' do
-        sign_in other_user
-        visit post_path(post_item)
         expect(page).not_to have_button('削除')
       end
     end

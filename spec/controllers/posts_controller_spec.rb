@@ -99,7 +99,7 @@ RSpec.describe PostsController, type: :controller do
 
   describe 'GET #edit' do
     context 'ログインしている場合' do
-      context '投稿者本人の場合' do
+      context '投稿の作成者の場合' do
         before do
           sign_in user
           get :edit, params: { id: post_item.id }
@@ -109,12 +109,12 @@ RSpec.describe PostsController, type: :controller do
           expect(response).to have_http_status(:success)
         end
 
-        it '要求された投稿を取得すること' do
+        it '編集対象の投稿を取得すること' do
           expect(assigns(:post)).to eq(post_item)
         end
       end
 
-      context '投稿者以外のユーザーの場合' do
+      context '投稿の作成者でない場合' do
         before do
           sign_in other_user
           get :edit, params: { id: post_item.id }
@@ -122,6 +122,10 @@ RSpec.describe PostsController, type: :controller do
 
         it '投稿一覧ページにリダイレクトすること' do
           expect(response).to redirect_to(posts_path)
+        end
+
+        it '権限エラーメッセージを表示すること' do
+          expect(flash[:alert]).to eq('権限がありません')
         end
       end
     end
@@ -136,60 +140,61 @@ RSpec.describe PostsController, type: :controller do
   end
 
   describe 'PATCH #update' do
-    let(:new_attributes) { { title: '更新されたタイトル' } }
-
     context 'ログインしている場合' do
-      context '投稿者本人の場合' do
+      context '投稿の作成者の場合' do
         before { sign_in user }
 
         context '有効なパラメータの場合' do
-          before { patch :update, params: { id: post_item.id, post: new_attributes } }
+          let(:new_attributes) { { title: 'Updated Title', content: 'Updated Content' } }
 
           it '投稿を更新すること' do
+            patch :update, params: { id: post_item.id, post: new_attributes }
             post_item.reload
-            expect(post_item.title).to eq('更新されたタイトル')
+            expect(post_item.title).to eq('Updated Title')
+            expect(post_item.content).to eq('Updated Content')
           end
 
-          it '投稿詳細ページにリダイレクトすること' do
+          it '更新した投稿の詳細ページにリダイレクトすること' do
+            patch :update, params: { id: post_item.id, post: new_attributes }
             expect(response).to redirect_to(post_item)
           end
         end
 
         context '無効なパラメータの場合' do
-          before { patch :update, params: { id: post_item.id, post: { title: '' } } }
+          let(:invalid_attributes) { { title: '' } }
 
           it '投稿を更新しないこと' do
+            patch :update, params: { id: post_item.id, post: invalid_attributes }
             post_item.reload
             expect(post_item.title).not_to eq('')
           end
 
           it '編集ページを再表示すること' do
+            patch :update, params: { id: post_item.id, post: invalid_attributes }
             expect(response).to render_template(:edit)
           end
         end
       end
 
-      context '投稿者以外のユーザーの場合' do
+      context '投稿の作成者でない場合' do
         before do
           sign_in other_user
-          patch :update, params: { id: post_item.id, post: new_attributes }
-        end
-
-        it '投稿を更新しないこと' do
-          post_item.reload
-          expect(post_item.title).not_to eq('更新されたタイトル')
+          patch :update, params: { id: post_item.id, post: { title: 'New Title' } }
         end
 
         it '投稿一覧ページにリダイレクトすること' do
           expect(response).to redirect_to(posts_path)
         end
+
+        it '権限エラーメッセージを表示すること' do
+          expect(flash[:alert]).to eq('権限がありません')
+        end
       end
     end
 
     context 'ログインしていない場合' do
-      before { patch :update, params: { id: post_item.id, post: new_attributes } }
-
       it 'ログインページにリダイレクトすること' do
+        patch :update, params: { id: post_item.id, post: { title: 'New Title' } }
         expect(response).to redirect_to(new_user_session_path)
       end
     end
@@ -197,11 +202,10 @@ RSpec.describe PostsController, type: :controller do
 
   describe 'DELETE #destroy' do
     context 'ログインしている場合' do
-      context '投稿者本人の場合' do
+      context '投稿の作成者の場合' do
         before { sign_in user }
 
         it '投稿を削除すること' do
-          post_item # 投稿を作成
           expect {
             delete :destroy, params: { id: post_item.id }
           }.to change(Post, :count).by(-1)
@@ -213,19 +217,24 @@ RSpec.describe PostsController, type: :controller do
         end
       end
 
-      context '投稿者以外のユーザーの場合' do
-        before { sign_in other_user }
+      context '投稿の作成者でない場合' do
+        before do
+          sign_in other_user
+          delete :destroy, params: { id: post_item.id }
+        end
 
         it '投稿を削除しないこと' do
-          post_item # 投稿を作成
           expect {
             delete :destroy, params: { id: post_item.id }
           }.not_to change(Post, :count)
         end
 
         it '投稿一覧ページにリダイレクトすること' do
-          delete :destroy, params: { id: post_item.id }
           expect(response).to redirect_to(posts_path)
+        end
+
+        it '権限エラーメッセージを表示すること' do
+          expect(flash[:alert]).to eq('権限がありません')
         end
       end
     end
