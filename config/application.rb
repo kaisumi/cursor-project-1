@@ -24,6 +24,10 @@ module SnsApp
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
+    # FrozenError対策: autoload_pathsを事前に複製しておく
+    config.autoload_paths = config.autoload_paths.dup
+
+    # lib 配下を autoload し、assets や tasks は除外
     config.autoload_lib(ignore: %w(assets tasks))
 
     # Configuration for the application, engines, and railties goes here.
@@ -49,7 +53,7 @@ module SnsApp
 
     # Configure session store
     config.session_store :cookie_store, key: '_sns_app_session'
-    
+
     # Add performance monitoring middleware
     require_relative "../lib/middleware/performance_monitor"
     config.middleware.use Middleware::PerformanceMonitor
