@@ -8,14 +8,49 @@
     <main>
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="px-4 py-8 sm:px-0">
-          <div class="border-4 border-dashed border-gray-200 rounded-lg p-4">
-            <% if logged_in? %>
-              <div class="text-center">
-                <h2 class="text-xl font-semibold mb-4">ようこそ、<%= current_user.name.present? ? current_user.name : current_user.email %>さん</h2>
-                <p class="mb-4">ログインに成功しました。</p>
-                <%= button_to "ログアウト", auth_logout_path, method: :delete, class: "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" %>
+          <% if logged_in? %>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="md:col-span-1">
+                <div class="bg-white shadow rounded-lg p-4">
+                  <h2 class="text-lg font-semibold mb-4"><%= current_user.name.present? ? current_user.name : current_user.email %></h2>
+                  <div class="text-sm text-gray-500">
+                    <p>投稿: <%= current_user.posts.count %></p>
+                    <p>フォロワー: <%= current_user.followers.count %></p>
+                    <p>フォロー中: <%= current_user.following.count %></p>
+                  </div>
+                  <div class="mt-4">
+                    <%= link_to "プロフィール", user_path(current_user), class: "text-blue-500 hover:text-blue-700" %>
+                  </div>
+                </div>
+                
+                <div class="bg-white shadow rounded-lg p-4 mt-4">
+                  <h2 class="text-lg font-semibold mb-4">新規投稿</h2>
+                  <%= form_with(model: Post.new, url: posts_path, class: "space-y-4") do |form| %>
+                    <div>
+                      <%= form.text_area :content, placeholder: "いまどうしてる？", rows: 3, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+                    </div>
+                    <div>
+                      <%= form.submit "投稿する", class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+                    </div>
+                  <% end %>
+                </div>
               </div>
-            <% else %>
+              
+              <div class="md:col-span-2">
+                <div class="bg-white shadow rounded-lg p-4">
+                  <h2 class="text-lg font-semibold mb-4">タイムライン</h2>
+                  <div id="feed" class="space-y-4">
+                    <% if @feed_items.any? %>
+                      <%= render partial: "posts/post", collection: @feed_items %>
+                    <% else %>
+                      <p class="text-gray-500">まだ投稿がありません。ユーザーをフォローするか、投稿してみましょう！</p>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <div class="border-4 border-dashed border-gray-200 rounded-lg p-4">
               <div class="text-center">
                 <h2 class="text-xl font-semibold mb-4">ログイン</h2>
                 <%= form_with url: auth_login_path, method: :post, class: "space-y-4" do |f| %>
@@ -30,8 +65,8 @@
                   </div>
                 <% end %>
               </div>
-            <% end %>
-          </div>
+            </div>
+          <% end %>
         </div>
       </div>
     </main>
