@@ -23,7 +23,10 @@ class Like < ApplicationRecord
     ActionCable.server.broadcast(
       "notifications_#{post.user_id}",
       { 
-        notification: notification, 
+        notification: ApplicationController.render(
+          partial: 'notifications/notification',
+          locals: { notification: notification }
+        ),
         count: post.user.notifications.unread.count,
         message: "#{user.name}があなたの投稿にいいねしました"
       }

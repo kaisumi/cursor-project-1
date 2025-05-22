@@ -20,7 +20,10 @@ class Relationship < ApplicationRecord
     ActionCable.server.broadcast(
       "notifications_#{followed.id}",
       { 
-        notification: notification, 
+        notification: ApplicationController.render(
+          partial: 'notifications/notification',
+          locals: { notification: notification }
+        ),
         count: followed.notifications.unread.count,
         message: "#{follower.name}があなたをフォローしました"
       }

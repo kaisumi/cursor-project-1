@@ -17,9 +17,9 @@ consumer.subscriptions.create("NotificationsChannel", {
     }
     
     const notificationList = document.getElementById('notification-list')
-    if (notificationList && data.notification_html) {
+    if (notificationList && data.notification) {
       const tempDiv = document.createElement('div')
-      tempDiv.innerHTML = data.notification_html
+      tempDiv.innerHTML = data.notification
       notificationList.prepend(tempDiv.firstElementChild)
     }
     
