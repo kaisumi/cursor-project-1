@@ -13,7 +13,6 @@ gem "puma", "~> 6.0"
 
 # Frontend
 gem "sprockets-rails"
-gem "turbo-rails"
 gem "stimulus-rails"
 gem "tailwindcss-rails"
 gem "jbuilder"
@@ -31,6 +30,7 @@ gem "sentry-ruby"
 gem "sentry-rails"
 
 gem 'lograge'
+gem 'rack-attack'
 
 # Development and testing
 group :development, :test do
@@ -58,4 +58,8 @@ group :test do
   gem "simplecov", require: false
   gem "webmock"
   gem "vcr"
+end
+
+group :development, :production do
+  gem "turbo-rails"
 end
