@@ -1,0 +1,32 @@
+{
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "ruby.useBundler": true,
+  "ruby.useLanguageServer": true,
+  "ruby.lint": {
+    "rubocop": {
+      "useBundler": true
+    }
+  },
+  "ruby.format": "rubocop",
+  "ruby.intellisense": "rubyLocate",
+  "[ruby]": {
+    "editor.defaultFormatter": "rebornix.ruby"
+  },
+  "[erb]": {
+    "editor.defaultFormatter": "aliariff.vscode-erb-beautify"
+  },
+  "emmet.includeLanguages": {
+    "erb": "html"
+  },
+  "tailwindCSS.includeLanguages": {
+    "erb": "html"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "files.associations": {
+    "*.erb": "erb"
+  }
+}

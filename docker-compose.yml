@@ -1,12 +1,39 @@
 version: '3.8'
 
 services:
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+      - mailcatcher
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - REDIS_URL=${REDIS_URL}
+      - RAILS_ENV=development
+      - RAILS_LOG_TO_STDOUT=true
+      - JWT_SECRET=${JWT_SECRET}
+      - SMTP_ADDRESS=${SMTP_ADDRESS}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_DOMAIN=${SMTP_DOMAIN}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
+      - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+
   db:
     image: postgres:14
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
 
