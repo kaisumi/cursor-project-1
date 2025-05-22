@@ -127,4 +127,53 @@ rails db:migrate:status
   3. [手順3]
 - 解決策: [最終的な解決策]
 - 参考リンク: [関連するドキュメントやIssue]
-``` 
+```
+
+## Sentryの設定問題
+- 症状: Sentryへのエラー送信が機能しない
+- 発生環境: 開発/本番
+- 解決手順:
+  1. 環境変数の確認
+     ```bash
+     echo $SENTRY_DSN
+     ```
+  2. Sentryの初期化コードの確認
+     ```ruby
+     # config/initializers/monitoring.rb
+     Sentry.init do |config|
+       config.dsn = ENV['SENTRY_DSN']
+       # 他の設定...
+     end
+     ```
+  3. テストエラーの送信
+     ```ruby
+     Sentry.capture_message("テストメッセージ")
+     ```
+- 解決策: 正しいSentry DSNを環境変数に設定し、アプリケーションを再起動する
+- 参考リンク: https://docs.sentry.io/platforms/ruby/
+
+## AWS S3バックアップの問題
+- 症状: S3へのバックアップアップロードが失敗する
+- 発生環境: 開発/本番
+- 解決手順:
+  1. AWS認証情報の確認
+     ```bash
+     echo $AWS_ACCESS_KEY_ID
+     echo $AWS_SECRET_ACCESS_KEY
+     echo $AWS_REGION
+     echo $AWS_BUCKET_NAME
+     ```
+  2. S3バケットの存在確認
+     ```ruby
+     require 'aws-sdk-s3'
+     s3 = Aws::S3::Resource.new
+     bucket = s3.bucket(ENV['AWS_BUCKET_NAME'])
+     puts bucket.exists?
+     ```
+  3. バケットへの書き込み権限テスト
+     ```ruby
+     obj = bucket.object('test.txt')
+     obj.put(body: 'テスト')
+     ```
+- 解決策: 正しいAWS認証情報を設定し、バケットに適切なアクセス権限があることを確認する
+- 参考リンク: https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Resource.html 

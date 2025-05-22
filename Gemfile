@@ -30,6 +30,9 @@ gem "sidekiq", "~> 7.0"
 gem "sentry-ruby"
 gem "sentry-rails"
 
+# AWS SDK for S3 backups
+gem "aws-sdk-s3", "~> 1.114"
+
 # Development and testing
 group :development, :test do
   gem "debug", platforms: %i[ mri mingw x64_mingw ]

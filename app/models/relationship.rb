@@ -11,19 +11,18 @@ class Relationship < ApplicationRecord
   private
   
   def create_follow_notification
-    notification = Notification.create(
-      user: followed,
-      notifiable: self,
-      action: "follow"
+    notification = NotificationService.create(
+      followed,
+      self,
+      "follow"
     )
     
+    return unless notification
+    
+    # Add additional broadcast data
     ActionCable.server.broadcast(
       "notifications_#{followed.id}",
       { 
-        notification: ApplicationController.render(
-          partial: 'notifications/notification',
-          locals: { notification: notification }
-        ),
         count: followed.notifications.unread.count,
         message: "#{follower.name}があなたをフォローしました"
       }

@@ -14,19 +14,18 @@ class Like < ApplicationRecord
     # Don't create notification if user likes their own post
     return if user_id == post.user_id
     
-    notification = Notification.create(
-      user: post.user,
-      notifiable: self,
-      action: "like"
+    notification = NotificationService.create(
+      post.user,
+      self,
+      "like"
     )
     
+    return unless notification
+    
+    # Add additional broadcast data
     ActionCable.server.broadcast(
       "notifications_#{post.user_id}",
       { 
-        notification: ApplicationController.render(
-          partial: 'notifications/notification',
-          locals: { notification: notification }
-        ),
         count: post.user.notifications.unread.count,
         message: "#{user.name}があなたの投稿にいいねしました"
       }

@@ -13,6 +13,14 @@ namespace :backup do
     system "pg_dump -Fc #{db_name} > #{backup_file}"
     
     puts "Database backup created at #{backup_file}"
+    
+    # Upload to S3 if configured
+    if defined?(S3_BUCKET) && S3_BUCKET
+      s3_key = "database_backups/#{File.basename(backup_file)}"
+      obj = S3_BUCKET.object(s3_key)
+      obj.upload_file(backup_file)
+      puts "Database backup uploaded to S3: #{s3_key}"
+    end
   end
   
   desc "Backup uploads"
@@ -24,9 +32,20 @@ namespace :backup do
     uploads_dir = Rails.root.join("public", "uploads")
     backup_file = File.join(backup_dir, "uploads_#{timestamp}.tar.gz")
     
-    system "tar -czf #{backup_file} #{uploads_dir}" if File.directory?(uploads_dir)
-    
-    puts "Uploads backup created at #{backup_file}"
+    if File.directory?(uploads_dir)
+      system "tar -czf #{backup_file} #{uploads_dir}"
+      puts "Uploads backup created at #{backup_file}"
+      
+      # Upload to S3 if configured
+      if defined?(S3_BUCKET) && S3_BUCKET
+        s3_key = "uploads_backups/#{File.basename(backup_file)}"
+        obj = S3_BUCKET.object(s3_key)
+        obj.upload_file(backup_file)
+        puts "Uploads backup uploaded to S3: #{s3_key}"
+      end
+    else
+      puts "No uploads directory found"
+    end
   end
   
   desc "Run all backups"
