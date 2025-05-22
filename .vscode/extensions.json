@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "rebornix.ruby",
+    "wingrunr21.vscode-ruby",
+    "castwide.solargraph",
+    "kaiwood.endwise",
+    "aliariff.vscode-erb-beautify",
+    "bradlc.vscode-tailwindcss",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}
