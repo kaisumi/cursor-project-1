@@ -40,11 +40,16 @@
        - 5つのマイルストーンファイルの作成
        - マイルストーン3と5の役割分担の明確化
        - 依存関係と技術スタックの追加
-- 次のタスク: マイルストーンの実装計画の詳細化
+  7. 実装計画の作成
+     - 詳細な実装計画書の作成（docs/development/IMPLEMENTATION_PLAN.md）
+     - 実装計画ディレクトリの作成と構造化（docs/development/implementation/）
+     - 各マイルストーンのタスク詳細の定義
+     - 実装スケジュールとリソース配分の計画
+- 次のタスク: 実装計画に基づいたマイルストーン1の実装開始
 
 ### 中断時のTODO
 - [x] 作業中のファイル: docs/development/DEVELOPMENT_JOURNAL.md
-- [ ] 実装予定の内容: マイルストーンの実装計画の詳細化
+- [x] 実装予定の内容: マイルストーンの実装計画の詳細化
   - 各マイルストーンのタスク詳細の作成
   - 実装スケジュールの設定
   - リソース配分の計画
@@ -54,6 +59,7 @@
   - docs/development/milestones/03_advanced_features.md
   - docs/development/milestones/04_ui_ux_enhancement.md
   - docs/development/milestones/05_analytics_and_monitoring.md
+  - docs/development/IMPLEMENTATION_PLAN.md
 
 ### 重要な決定事項ログ
 - 2025-04-30: 開発ドキュメントの階層的な構成を採用（理由: 断続的な開発に対応するため）
@@ -63,6 +69,7 @@
   - マイルストーン3と5のセキュリティ関連の役割分担
 - 2025-04-30: ADRの形式を統一（理由: ドキュメントの一貫性を保つため）
 - 2025-04-30: 開発環境の基本構成を決定（理由: 効率的な開発を実現するため）
+- 2025-04-30: モジュール化された設計アプローチを採用（理由: 独立したテストと開発を可能にするため）
 
 ### 開発環境の状態
 - Ruby: 3.2.x
