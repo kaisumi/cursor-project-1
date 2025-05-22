@@ -7,7 +7,7 @@ class NotificationsController < ApplicationController
   
   def mark_as_read
     @notification = current_user.notifications.find(params[:id])
-    @notification.mark_as_read!
+    NotificationService.mark_as_read(@notification)
     
     respond_to do |format|
       format.html { redirect_to notifications_path }
@@ -16,7 +16,7 @@ class NotificationsController < ApplicationController
   end
   
   def mark_all_as_read
-    current_user.notifications.unread.update_all(read: true)
+    NotificationService.mark_all_as_read(current_user)
     
     respond_to do |format|
       format.html { redirect_to notifications_path }
