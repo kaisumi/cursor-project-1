@@ -39,6 +39,31 @@ class User < ApplicationRecord
   validate :avatar_content_type, if: -> { avatar.attached? }
   validate :avatar_size, if: -> { avatar.attached? }
   
+  # ユーザーをフォローする
+  def follow(other_user)
+    following << other_user unless self == other_user
+  end
+
+  # ユーザーをフォロー解除する
+  def unfollow(other_user)
+    following.delete(other_user)
+  end
+
+  # 現在のユーザーがフォローしてたらtrueを返す
+  def following?(other_user)
+    following.include?(other_user)
+  end
+
+  # ユーザーがフォローされているかどうかを確認
+  def followed_by?(other_user)
+    followers.include?(other_user)
+  end
+
+  def avatar_url
+    # 実際のアバター画像の実装がない場合はnilを返す
+    nil
+  end
+
   private
   
   def avatar_content_type
@@ -65,30 +90,5 @@ class User < ApplicationRecord
 
   def will_save_change_to_email?
     false
-  end
-
-  # ユーザーをフォローする
-  def follow(other_user)
-    following << other_user unless self == other_user
-  end
-
-  # ユーザーをフォロー解除する
-  def unfollow(other_user)
-    following.delete(other_user)
-  end
-
-  # 現在のユーザーがフォローしてたらtrueを返す
-  def following?(other_user)
-    following.include?(other_user)
-  end
-
-  # ユーザーがフォローされているかどうかを確認
-  def followed_by?(other_user)
-    followers.include?(other_user)
-  end
-
-  def avatar_url
-    # 実際のアバター画像の実装がない場合はnilを返す
-    nil
   end
 end

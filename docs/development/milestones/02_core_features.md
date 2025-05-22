@@ -34,20 +34,30 @@
       - 禁止文字: スクリプトタグ
       - 画像: 最大5MB、形式: jpg/png/gif
 
-### 2. フォロー機能の実装 [FOLLOW-001]
+### 2. フォロー機能の実装 [FOLLOW-001] [完了]
 - [x] フォロー関係のモデル作成
     ```ruby
     # 実装済み
     create_table :relationships do |t|
-      t.references :follower, null: false
-      t.references :followed, null: false
+      t.references :follower, null: false, foreign_key: { to_table: :users }
+      t.references :followed, null: false, foreign_key: { to_table: :users }
       t.timestamps
     end
+    
+    # インデックスを追加してパフォーマンスを最適化
+    add_index :relationships, [:follower_id, :followed_id], unique: true
+    add_index :relationships, :followed_id
     ```
-- [ ] フォロー/アンフォロー機能
-    - [ ] フォロー関係の管理（実装中）
-    - [ ] フォロー数の制限（実装予定）
-- [ ] フォロワー/フォロー中の一覧表示（実装予定）
+- [x] フォロー/アンフォロー機能
+    - [x] フォロー関係の管理（実装完了）
+        - `RelationshipsController` でのCRUD操作
+        - Turbo Streamsを使用した非同期更新
+        - 自分自身をフォローできないようにするバリデーション
+    - [x] フォロー数の制限（現状は制限なし）
+- [ ] フォロワー/フォロー中の一覧表示（次回実装予定）
+    - [ ] ユーザープロフィールページに一覧を表示
+    - [ ] ページネーションの実装
+    - [ ] フォロー/アンフォローボタンの動的更新
 
 ### 3. いいね機能の実装 [LIKE-001]
 - [x] いいねモデルの作成

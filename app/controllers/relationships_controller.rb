@@ -10,10 +10,11 @@ class RelationshipsController < ApplicationController
     respond_to do |format|
       if @relationship.save
         format.html { redirect_to @user, notice: 'ユーザーをフォローしました。' }
-        format.turbo_stream
-        format.json { render json: { status: 'success', message: 'フォローしました。' } }
+        format.turbo_stream { render :create }
+        format.json { render json: { status: 'success', message: 'フォローしました。' }, status: :ok }
       else
         format.html { redirect_to @user, alert: 'フォローに失敗しました。' }
+        format.turbo_stream { render :create, status: :unprocessable_entity }
         format.json { render json: { status: 'error', message: @relationship.errors.full_messages }, status: :unprocessable_entity }
       end
     end
@@ -21,20 +22,23 @@ class RelationshipsController < ApplicationController
 
   # フォローを解除する
   def destroy
+    set_user
     @relationship = current_user.active_relationships.find_by(followed_id: @user.id)
     
-    if @relationship
-      @relationship.destroy
-      respond_to do |format|
-        format.html { redirect_to @user, notice: 'フォローを解除しました。' }
-        format.turbo_stream
-        format.json { render json: { status: 'success', message: 'フォローを解除しました。' } }
-      end
-    else
+    if @relationship.nil?
       respond_to do |format|
         format.html { redirect_to @user, alert: 'フォロー関係が見つかりません。' }
+        format.turbo_stream { render :destroy, status: :not_found }
         format.json { render json: { status: 'error', message: 'フォロー関係が見つかりません。' }, status: :not_found }
       end
+      return
+    end
+    
+    @relationship.destroy
+    respond_to do |format|
+      format.html { redirect_to @user, notice: 'フォローを解除しました。' }
+      format.turbo_stream { render :destroy }
+      format.json { render json: { status: 'success', message: 'フォローを解除しました。' }, status: :ok }
     end
   end
 
@@ -55,6 +59,7 @@ class RelationshipsController < ApplicationController
     
     respond_to do |format|
       format.html { redirect_to @user, alert: '自分自身をフォローすることはできません。' }
+      format.turbo_stream { render :self_follow_error, status: :unprocessable_entity }
       format.json { render json: { error: '自分自身をフォローすることはできません。' }, status: :unprocessable_entity }
     end
   end
