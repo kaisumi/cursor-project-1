@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "3.2.2"
+ruby "3.4.3"
 
 # Rails
 gem "rails", "~> 7.1.0"
@@ -29,6 +29,8 @@ gem "sidekiq", "~> 7.0"
 # Monitoring and error reporting
 gem "sentry-ruby"
 gem "sentry-rails"
+
+gem 'lograge'
 
 # Development and testing
 group :development, :test do
