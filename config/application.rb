@@ -49,5 +49,8 @@ module SnsApp
 
     # Configure session store
     config.session_store :cookie_store, key: '_sns_app_session'
+    
+    # Add performance monitoring middleware
+    config.middleware.use Middleware::PerformanceMonitor
   end
 end
