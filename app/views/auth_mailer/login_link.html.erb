@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+</head>
+<body>
+  <h1>こんにちは、<%= @user.name.present? ? @user.name : @user.email %>さん</h1>
+  <p>
+    以下のリンクからログインしてください。リンクの有効期限は30分です。
+  </p>
+  <p>
+    <a href="<%= @url %>">ログインする</a>
+  </p>
+  <p>
+    このメールに心当たりがない場合は、無視してください。
+  </p>
+</body>
+</html>

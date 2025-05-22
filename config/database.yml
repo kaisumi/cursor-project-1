@@ -1,0 +1,21 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DB_HOST") { "db" } %>
+  username: <%= ENV.fetch("DB_USER") { "postgres" } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { "password" } %>
+
+development:
+  <<: *default
+  database: <%= ENV.fetch("DB_NAME") { "sns_development" } %>
+
+test:
+  <<: *default
+  database: <%= ENV.fetch("DB_TEST_NAME") { "sns_test" } %>
+
+production:
+  <<: *default
+  database: <%= ENV.fetch("DB_NAME") { "sns_production" } %>
+  username: <%= ENV.fetch("DB_USER") { "postgres" } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { "password" } %>
