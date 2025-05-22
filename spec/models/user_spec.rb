@@ -34,12 +34,39 @@ RSpec.describe User, type: :model do
   describe 'devise overrides' do
     let(:user) { build(:user) }
 
-    it 'does not require a password' do
-      expect(user.password_required?).to be_falsey
+    it 'does not require a password on create' do
+      user.password = nil
+      user.password_confirmation = nil
+      expect(user.valid?).to be_truthy
     end
 
     it 'requires an email' do
-      expect(user.email_required?).to be_truthy
+      user.email = nil
+      expect(user.valid?).to be_falsey
+      expect(user.errors[:email]).to include("can't be blank")
+    end
+  end
+
+  describe 'following and followers' do
+    let(:user) { create(:user) }
+    let(:other_user) { create(:user) }
+
+    before do
+      user.follow(other_user)
+    end
+
+    it 'can follow another user' do
+      expect(user.following?(other_user)).to be_truthy
+    end
+
+    it 'can unfollow a user' do
+      user.unfollow(other_user)
+      expect(user.following?(other_user)).to be_falsey
+    end
+
+    it 'has the right following and followers' do
+      expect(user.following).to include(other_user)
+      expect(other_user.followers).to include(user)
     end
   end
 end

@@ -1,0 +1,65 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- ユーザー情報セクション -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <div class="flex flex-col md:flex-row md:items-center">
+      <!-- アバター -->
+      <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-8">
+        <% if @user.avatar.attached? %>
+          <%= image_tag @user.avatar, class: 'w-32 h-32 rounded-full border-4 border-gray-200 object-cover' %>
+        <% else %>
+          <%= image_tag 'default-avatar.png', class: 'w-32 h-32 rounded-full border-4 border-gray-200 object-cover', alt: @user.name %>
+        <% end %>
+      </div>
+      
+      <!-- ユーザー情報 -->
+      <div class="flex-1">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+          <h1 class="text-2xl font-bold"><%= @user.name %></h1>
+          
+          <!-- フォローボタン -->
+          <%= render 'users/follow_button', user: @user %>
+        </div>
+        
+        <div class="mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">@<%= @user.username %></h2>
+          <% if @user.bio.present? %>
+            <p class="mt-2 text-gray-600"><%= @user.bio %></p>
+          <% end %>
+        </div>
+        
+        <div class="flex space-x-6 text-sm text-gray-500">
+          <%= link_to user_following_path(@user), class: 'hover:text-gray-700' do %>
+            <span class="block font-semibold text-gray-900"><%= @user.following.count %></span>
+            <span>フォロー中</span>
+          <% end %>
+          <%= link_to user_followers_path(@user), class: 'hover:text-gray-700' do %>
+            <span id="followers-count-<%= @user.id %>" class="block font-semibold text-gray-900">
+              <%= @user.followers.count %>
+            </span>
+            <span>フォロワー</span>
+          <% end %>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ユーザーの投稿一覧 -->
+  <div>
+    <h2 class="text-xl font-semibold mb-4">投稿一覧</h2>
+    
+    <% if @posts.any? %>
+      <div class="space-y-6">
+        <%= render @posts %>
+      </div>
+      
+      <div class="mt-6">
+        <%= paginate @posts %>
+      </div>
+    <% else %>
+      <div class="text-center py-12 bg-white rounded-lg shadow">
+        <p class="text-gray-500">まだ投稿がありません。</p>
+      </div>
+    <% end %>
+  </div>
+</div>
