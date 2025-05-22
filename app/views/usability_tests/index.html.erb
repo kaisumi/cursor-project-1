@@ -1,0 +1,46 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+    <h1 class="text-2xl font-bold mb-4 sm:mb-0">ユーザビリティテスト</h1>
+    <%= link_to "新規テスト作成", new_usability_test_path, class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" %>
+  </div>
+  
+  <div class="bg-white rounded shadow overflow-hidden">
+    <% if @tests.any? %>
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">タイトル</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">作成日</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">結果数</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">アクション</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @tests.each do |test| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <%= link_to test.title, usability_test_path(test), class: "text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded" %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                <%= test.created_at.strftime("%Y/%m/%d %H:%M") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
+                <%= test.usability_test_results.count %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <%= link_to "詳細", usability_test_path(test), class: "text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded" %>
+                  <%= link_to "共有", participate_usability_test_path(test.token), class: "text-green-600 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 rounded" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="p-6 text-center text-gray-500">
+        テストはまだ作成されていません。「新規テスト作成」ボタンをクリックして最初のテストを作成してください。
+      </div>
+    <% end %>
+  </div>
+</div>

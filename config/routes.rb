@@ -40,6 +40,19 @@ Rails.application.routes.draw do
   
   # Mount Action Cable
   mount ActionCable.server => '/cable'
+  
+  # Usability tests routes
+  resources :usability_tests, except: [:edit, :update, :destroy] do
+    member do
+      get :results
+    end
+  end
+  
+  get '/usability_tests/:token/participate', to: 'usability_tests#participate', as: :participate_usability_test
+  post '/usability_tests/:token/submit_feedback', to: 'usability_tests#submit_feedback', as: :submit_feedback_usability_test
+  
+  # Offline page
+  get '/offline', to: 'pages#offline'
 
   # Root path
   root "home#index"

@@ -1,0 +1,158 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <div class="flex items-center mb-4">
+      <%= link_to usability_tests_path, class: "text-blue-600 hover:text-blue-800 mr-2 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+        テスト一覧に戻る
+      <% end %>
+    </div>
+    <h1 class="text-2xl font-bold"><%= @test.title %></h1>
+    <p class="text-gray-600 mt-2">作成日: <%= @test.created_at.strftime("%Y/%m/%d %H:%M") %></p>
+  </div>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded shadow p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4">テスト詳細</h2>
+        
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold mb-2">説明</h3>
+          <div class="bg-gray-50 p-4 rounded">
+            <%= simple_format(@test.description) %>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="text-lg font-semibold mb-2">タスク</h3>
+          <div class="bg-gray-50 p-4 rounded">
+            <%= simple_format(@test.task) %>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">テスト結果 (<%= @results.count %>)</h2>
+          
+          <% if @results.any? %>
+            <button id="export-csv" class="text-blue-600 hover:text-blue-800 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded p-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+              CSVエクスポート
+            </button>
+          <% end %>
+        </div>
+        
+        <% if @results.any? %>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ユーザー</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">完了時間</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">成功</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">難易度</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日時</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% @results.each do |result| %>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <%= result.user.name %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <%= result.completion_time.round(1) %>秒
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <% if result.success %>
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">成功</span>
+                      <% else %>
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">失敗</span>
+                      <% end %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <%= "★" * result.difficulty_rating %><%= "☆" * (5 - result.difficulty_rating) %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <%= result.created_at.strftime("%Y/%m/%d %H:%M") %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="text-center py-8 text-gray-500">
+            まだテスト結果はありません。下記の共有リンクを使ってユーザーにテストを依頼してください。
+          </div>
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded shadow p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4">テストを共有</h2>
+        <p class="mb-4">以下のリンクをユーザーに共有してテストに参加してもらいましょう：</p>
+        
+        <div class="flex">
+          <input type="text" value="<%= participate_usability_test_url(@test.token) %>" readonly class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" id="share-link">
+          <button onclick="copyShareLink()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+            コピー
+          </button>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded shadow p-6">
+        <h2 class="text-xl font-bold mb-4">統計</h2>
+        
+        <% if @results.any? %>
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">平均完了時間</h3>
+              <p class="text-2xl font-bold"><%= @results.average(:completion_time).round(1) %>秒</p>
+            </div>
+            
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">成功率</h3>
+              <p class="text-2xl font-bold"><%= (@results.where(success: true).count.to_f / @results.count * 100).round %>%</p>
+            </div>
+            
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">平均難易度</h3>
+              <p class="text-2xl font-bold"><%= @results.average(:difficulty_rating).round(1) %>/5</p>
+            </div>
+          </div>
+        <% else %>
+          <div class="text-center py-4 text-gray-500">
+            データがありません
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyShareLink() {
+  const shareLink = document.getElementById('share-link');
+  shareLink.select();
+  document.execCommand('copy');
+  
+  // コピー成功のフィードバック
+  const button = shareLink.nextElementSibling;
+  const originalText = button.textContent;
+  button.textContent = 'コピー完了!';
+  button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+  button.classList.add('bg-green-500', 'hover:bg-green-600');
+  
+  setTimeout(() => {
+    button.textContent = originalText;
+    button.classList.remove('bg-green-500', 'hover:bg-green-600');
+    button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+  }, 2000);
+}
+</script>

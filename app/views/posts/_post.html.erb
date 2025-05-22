@@ -1,22 +1,44 @@
-<div id="<%= dom_id(post) %>" class="bg-white rounded-lg shadow p-4">
-  <div class="flex items-start">
+<div id="<%= dom_id(post) %>" class="post bg-white rounded-lg shadow p-4 transition-all duration-300 hover:shadow-md">
+  <div class="flex flex-col sm:flex-row sm:items-start">
+    <div class="mb-2 sm:mb-0 sm:mr-4">
+      <!-- ユーザーアバター -->
+      <%= link_to user_path(post.user) do %>
+        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center" aria-hidden="true">
+          <span class="text-gray-600 font-semibold"><%= post.user.name.present? ? post.user.name.first : post.user.email.first %></span>
+        </div>
+      <% end %>
+    </div>
     <div class="flex-1">
-      <div class="flex items-center mb-2">
-        <h3 class="font-bold text-lg"><%= link_to post.user.name.present? ? post.user.name : post.user.email, user_path(post.user), class: "hover:text-blue-500" %></h3>
-        <span class="text-gray-500 text-sm ml-2"><%= time_ago_in_words(post.created_at) %>前</span>
+      <div class="flex flex-col sm:flex-row sm:items-center mb-1">
+        <h3 class="font-bold text-sm sm:text-base">
+          <%= link_to post.user.name.present? ? post.user.name : post.user.email, user_path(post.user), class: "text-blue-600 hover:underline", aria: { label: "#{post.user.name.present? ? post.user.name : post.user.email}のプロフィールを表示" } %>
+        </h3>
+        <span class="text-gray-500 text-xs sm:ml-2" aria-label="投稿日時">
+          <%= time_ago_in_words(post.created_at) %>前
+        </span>
       </div>
-      <div class="mb-2">
+      <div class="mb-3 text-gray-800 text-sm sm:text-base">
         <%= simple_format(post.content) %>
       </div>
-      <div class="flex items-center space-x-4">
-        <div id="likes-<%= post.id %>">
+      <div class="flex flex-wrap items-center gap-4">
+        <div id="likes-<%= post.id %>" class="flex items-center">
           <%= render partial: "likes/like", locals: { post: post } %>
         </div>
         
         <% if logged_in? && current_user == post.user %>
-          <div class="flex space-x-2">
-            <%= link_to "編集", edit_post_path(post), class: "text-blue-500 hover:text-blue-700" %>
-            <%= button_to "削除", post_path(post), method: :delete, class: "text-red-500 hover:text-red-700", form: { data: { turbo_confirm: "本当に削除しますか？" } } %>
+          <div class="flex flex-wrap gap-2">
+            <%= link_to edit_post_path(post), class: "text-blue-500 hover:text-blue-700 flex items-center", aria: { label: "投稿を編集" } do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span>編集</span>
+            <% end %>
+            <%= button_to post_path(post), method: :delete, class: "text-red-500 hover:text-red-700 flex items-center", form: { data: { turbo_confirm: "本当に削除しますか？" } }, aria: { label: "投稿を削除" } do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>削除</span>
+            <% end %>
           </div>
         <% end %>
       </div>
