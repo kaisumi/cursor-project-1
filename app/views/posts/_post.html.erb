@@ -1,0 +1,25 @@
+<div id="<%= dom_id(post) %>" class="bg-white rounded-lg shadow p-4">
+  <div class="flex items-start">
+    <div class="flex-1">
+      <div class="flex items-center mb-2">
+        <h3 class="font-bold text-lg"><%= link_to post.user.name.present? ? post.user.name : post.user.email, user_path(post.user), class: "hover:text-blue-500" %></h3>
+        <span class="text-gray-500 text-sm ml-2"><%= time_ago_in_words(post.created_at) %>前</span>
+      </div>
+      <div class="mb-2">
+        <%= simple_format(post.content) %>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div id="likes-<%= post.id %>">
+          <%= render partial: "likes/like", locals: { post: post } %>
+        </div>
+        
+        <% if logged_in? && current_user == post.user %>
+          <div class="flex space-x-2">
+            <%= link_to "編集", edit_post_path(post), class: "text-blue-500 hover:text-blue-700" %>
+            <%= button_to "削除", post_path(post), method: :delete, class: "text-red-500 hover:text-red-700", form: { data: { turbo_confirm: "本当に削除しますか？" } } %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

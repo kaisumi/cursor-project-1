@@ -1,0 +1,31 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold"><%= @user.name.present? ? @user.name : @user.email %></h1>
+        <p class="text-gray-500">投稿: <%= @user.posts.count %> | フォロワー: <%= @user.followers.count %> | フォロー中: <%= @user.following.count %></p>
+      </div>
+      
+      <% if logged_in? && @user != current_user %>
+        <div id="follow_form">
+          <% if current_user.following?(@user) %>
+            <%= button_to "フォロー解除", relationship_path(current_user.active_relationships.find_by(followed_id: @user.id)), 
+                 method: :delete, 
+                 class: "py-2 px-4 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100" %>
+          <% else %>
+            <%= button_to "フォローする", relationships_path, 
+                 params: { followed_id: @user.id }, 
+                 class: "py-2 px-4 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="mb-6">
+    <h2 class="text-xl font-bold mb-4">投稿</h2>
+    <div class="space-y-4">
+      <%= render partial: "posts/post", collection: @posts %>
+    </div>
+  </div>
+</div>
