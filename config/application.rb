@@ -24,12 +24,10 @@ module SnsApp
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    # FrozenError対策: autoload_pathsを事前に複製しておく
-    config.autoload_paths = config.autoload_paths.dup
-
-    # lib 配下を autoload し、assets や tasks は除外
-    config.autoload_lib(ignore: %w(assets tasks))
-
+    config.before_configuration do
+      config.autoload_paths = config.autoload_paths.dup
+      config.autoload_lib(ignore: %w(assets tasks))
+    end
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
