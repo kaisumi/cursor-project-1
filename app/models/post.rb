@@ -7,4 +7,14 @@ class Post < ApplicationRecord
   validates :user_id, presence: true
   
   default_scope -> { order(created_at: :desc) }
+  
+  # Full-text search
+  def self.search(query)
+    if query.present?
+      where("tsv @@ plainto_tsquery('english', ?)", query)
+        .order("ts_rank(tsv, plainto_tsquery('english', #{sanitize(query)})) DESC")
+    else
+      none
+    end
+  end
 end

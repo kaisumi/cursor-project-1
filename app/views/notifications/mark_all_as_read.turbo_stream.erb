@@ -1,0 +1,7 @@
+<%= turbo_stream.update "notification-list" do %>
+  <%= render current_user.notifications.recent %>
+<% end %>
+
+<%= turbo_stream.update "notification-count" do %>
+  0
+<% end %>

@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "3.2.2"
+ruby "3.4.3"
 
 # Rails
 gem "rails", "~> 7.1.0"
@@ -13,7 +13,6 @@ gem "puma", "~> 6.0"
 
 # Frontend
 gem "sprockets-rails"
-gem "turbo-rails"
 gem "stimulus-rails"
 gem "tailwindcss-rails"
 gem "jbuilder"
@@ -29,6 +28,9 @@ gem "sidekiq", "~> 7.0"
 # Monitoring and error reporting
 gem "sentry-ruby"
 gem "sentry-rails"
+
+gem 'lograge'
+gem 'rack-attack'
 
 # Development and testing
 group :development, :test do
@@ -56,4 +58,8 @@ group :test do
   gem "simplecov", require: false
   gem "webmock"
   gem "vcr"
+end
+
+group :development, :production do
+  gem "turbo-rails"
 end

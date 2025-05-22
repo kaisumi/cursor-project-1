@@ -37,4 +37,41 @@ users.each do |user|
   end
 end
 
+# Create notifications
+users = User.all
+users.each do |user|
+  next if user == User.first
+  
+  # Create follow notifications
+  if Relationship.find_by(follower: user, followed: User.first)
+    Notification.create!(
+      user: User.first,
+      notifiable: Relationship.find_by(follower: user, followed: User.first),
+      action: "follow"
+    )
+  end
+  
+  # Create like notifications
+  user_posts = User.first.posts
+  user_posts.each do |post|
+    like = Like.find_by(user: user, post: post)
+    next unless like
+    
+    Notification.create!(
+      user: User.first,
+      notifiable: like,
+      action: "like"
+    )
+  end
+end
+
+# Create search histories
+users = User.all
+search_terms = ["新しい", "投稿", "ユーザー", "テスト", "プロジェクト", "Rails", "Ruby"]
+users.each do |user|
+  search_terms.sample(3).each do |term|
+    user.search_histories.create!(query: term)
+  end
+end
+
 puts "Seed data created successfully!"

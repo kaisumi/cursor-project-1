@@ -24,6 +24,22 @@ Rails.application.routes.draw do
       get :following, :followers
     end
   end
+  
+  # Notifications routes
+  resources :notifications, only: [:index] do
+    member do
+      post :mark_as_read
+    end
+    collection do
+      post :mark_all_as_read
+    end
+  end
+  
+  # Search routes
+  resources :search, only: [:index]
+  
+  # Mount Action Cable
+  mount ActionCable.server => '/cable'
 
   # Root path
   root "home#index"

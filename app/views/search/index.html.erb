@@ -1,0 +1,93 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold mb-4">検索</h1>
+    
+    <%= form_with url: search_index_path, method: :get, class: "flex" do |f| %>
+      <%= f.text_field :q, value: @query, placeholder: "キーワードを入力", class: "flex-1 border border-gray-300 rounded-l px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      <%= f.submit "検索", class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r" %>
+    <% end %>
+  </div>
+  
+  <% if @query.present? %>
+    <div class="mb-8">
+      <h2 class="text-xl font-bold mb-4">検索結果: "<%= @query %>"</h2>
+      
+      <% if @posts.present? || @users.present? %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <% if @posts.present? %>
+            <div>
+              <h3 class="text-lg font-semibold mb-2">投稿 (<%= @posts.count %>)</h3>
+              <div class="space-y-4">
+                <%= render partial: "posts/post", collection: @posts %>
+              </div>
+              <%= paginate @posts %>
+            </div>
+          <% end %>
+          
+          <% if @users.present? %>
+            <div>
+              <h3 class="text-lg font-semibold mb-2">ユーザー (<%= @users.count %>)</h3>
+              <div class="space-y-4">
+                <% @users.each do |user| %>
+                  <div class="bg-white p-4 rounded shadow">
+                    <div class="flex items-center">
+                      <div class="flex-1">
+                        <h4 class="font-bold"><%= link_to user.name, user_path(user), class: "text-blue-600" %></h4>
+                        <p class="text-gray-500">@<%= user.email.split('@').first %></p>
+                      </div>
+                      
+                      <% if current_user != user %>
+                        <% if current_user.following?(user) %>
+                          <%= button_to "フォロー解除", relationship_path(current_user.active_relationships.find_by(followed_id: user.id)), 
+                                        method: :delete, 
+                                        class: "bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded" %>
+                        <% else %>
+                          <%= button_to "フォロー", relationships_path(followed_id: user.id), 
+                                        method: :post, 
+                                        class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" %>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+              <%= paginate @users %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="bg-gray-100 p-4 rounded text-center">
+          <p class="text-gray-600">検索結果はありません</p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <% if @recent_searches.present? %>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">最近の検索</h3>
+        <div class="bg-white p-4 rounded shadow">
+          <div class="flex flex-wrap gap-2">
+            <% @recent_searches.each do |search| %>
+              <%= link_to search.query, search_index_path(q: search.query), class: "bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    
+    <% if @popular_searches.present? %>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">人気の検索</h3>
+        <div class="bg-white p-4 rounded shadow">
+          <div class="flex flex-wrap gap-2">
+            <% @popular_searches.each do |query, count| %>
+              <%= link_to "#{query} (#{count})", search_index_path(q: query), class: "bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

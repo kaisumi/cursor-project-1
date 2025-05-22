@@ -15,6 +15,10 @@ class User < ApplicationRecord
   has_many :likes, dependent: :destroy
   has_many :liked_posts, through: :likes, source: :post
   
+  # Notifications
+  has_many :notifications, dependent: :destroy
+  has_many :search_histories, dependent: :destroy
+  
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, length: { maximum: 50 }
   

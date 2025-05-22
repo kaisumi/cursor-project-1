@@ -1,0 +1,32 @@
+<div id="<%= dom_id(notification) %>" class="bg-white p-4 rounded shadow <%= notification.read? ? 'opacity-70' : 'border-l-4 border-blue-500' %>">
+  <div class="flex justify-between items-start">
+    <div class="flex-1">
+      <% case notification.action %>
+      <% when "follow" %>
+        <% follower = notification.notifiable.follower %>
+        <p>
+          <%= link_to follower.name, user_path(follower), class: "font-bold text-blue-600" %>
+          があなたをフォローしました
+        </p>
+      <% when "like" %>
+        <% user = notification.notifiable.user %>
+        <% post = notification.notifiable.post %>
+        <p>
+          <%= link_to user.name, user_path(user), class: "font-bold text-blue-600" %>
+          があなたの
+          <%= link_to "投稿", post_path(post), class: "text-blue-600" %>
+          にいいねしました
+        </p>
+      <% end %>
+      <p class="text-sm text-gray-500 mt-1"><%= time_ago_in_words(notification.created_at) %>前</p>
+    </div>
+    
+    <% unless notification.read? %>
+      <%= button_to mark_as_read_notification_path(notification), method: :post, class: "text-sm text-gray-500 hover:text-gray-700" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+      <% end %>
+    <% end %>
+  </div>
+</div>
