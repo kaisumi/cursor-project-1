@@ -9,7 +9,7 @@
 ## 📋 タスク一覧
 
 ### 1. 開発環境セットアップ [ENV-001] - 4時間
-- [ ] Docker環境の構築
+- [x] Docker環境の構築
     - PostgreSQL 14
     - Redis 7
     - Mailcatcher
@@ -23,6 +23,9 @@
 **成果物:**
 - 動作する開発環境
 - 基本的なRailsアプリケーション
+
+**完了したPR:**
+- PR #24: ENV-001: Docker環境の構築
 
 ### 2. 認証機能の実装 [AUTH-001] - 4時間
 - [ ] メールアドレスによるユーザー登録
@@ -57,7 +60,7 @@
     - 名前の必須入力
 
 ### 4. CI/CD基本設定 [CI-001] - 1時間
-- [ ] GitHub Actionsの基本設定
+- [x] GitHub Actionsの基本設定
     ```yaml
     # .github/workflows/ci.yml
     name: CI
@@ -89,8 +92,8 @@
           - name: Run Rubocop
             run: bundle exec rubocop
     ```
-- [ ] 基本的なRSpecテストの作成
-- [ ] Rubocopの設定
+- [x] 基本的なRSpecテストの作成
+- [x] Rubocopの設定
 
 **制限事項（MVP範囲外）:**
 - ESLintによるJavaScript解析
@@ -98,10 +101,10 @@
 - 複雑なデプロイパイプライン
 
 ## 📊 進捗管理
-- [ ] 環境構築完了
+- [x] 環境構築完了
 - [ ] 認証機能動作確認
 - [ ] 基本的なユーザー登録・ログインテスト
-- [ ] CI/CD基本設定完了
+- [x] CI/CD基本設定完了
 
 ## 🔍 レビューポイント
 - 開発環境の動作確認
