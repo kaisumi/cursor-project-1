@@ -3,8 +3,14 @@
 ## 最終更新: 2025-05-23
 
 ### 現在の開発状態
-- ブランチ: docs/mvp-planning-update
-- 実装中の機能: 1週間MVP開発計画の策定・ドキュメント更新完了
+- ブランチ: feature/ENV-001-setup-dev-environment
+- 実装中の機能: マイルストーン1 - MVP基盤構築
+- 現在の進捗:
+  - [x] 開発環境のセットアップ（Docker, PostgreSQL, Redis, Mailcatcher）
+  - [x] 基本的なRailsアプリケーションの初期化
+  - [x] 必要なGemのインストール（devise, rspec-rails, factory_bot_rails, capybara, database_cleaner, shoulda-matchers, tailwindcss-rails, turbo-rails, stimulus-rails）
+  - [x] CI/CDパイプラインの基本設定（GitHub Actions）
+- [ ] 認証機能の実装（次回のタスク）
 - 今日の作業内容:
   1. 要件分析の実施
      - 既存ドキュメントの全体レビュー
