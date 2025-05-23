@@ -53,4 +53,7 @@ gem "stimulus-rails", "~> 1.3"
 
 group :development, :test do
   gem "dotenv-rails"
+  gem "rubocop", "~> 1.64", require: false
+  gem "rubocop-rails", require: false
+  gem "rubocop-rspec", require: false
 end
