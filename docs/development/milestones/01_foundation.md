@@ -9,16 +9,23 @@
 ## 📋 タスク一覧
 
 ### 1. 開発環境セットアップ [ENV-001] - 4時間
-- [ ] Docker環境の構築
-    - PostgreSQL 14
-    - Redis 7
-    - Mailcatcher
-- [ ] Rails 8.0.2アプリケーションの初期化
-- [ ] 基本的なGemの導入
-    - devise (認証)
-    - tailwindcss-rails
-    - turbo-rails
-    - stimulus-rails
+- [x] Docker環境の構築
+    - [x] PostgreSQL 14
+    - [x] Redis 7
+    - [x] Mailcatcher（ポート: 1080, 1025）
+- [x] Rails 8.0.2アプリケーションの初期化
+- [x] 基本的なGemの導入
+    - [x] devise (認証)
+    - [x] rspec-rails (テスト)
+    - [x] factory_bot_rails (テスト)
+    - [x] capybara (テスト)
+    - [x] tailwindcss-rails
+    - [x] turbo-rails
+    - [x] stimulus-rails
+- [x] CI/CDパイプラインの基本設定
+    - [x] GitHub Actions ワークフローファイルの作成
+    - [x] RuboCop の設定
+    - [x] テスト環境のデータベース設定
 
 **成果物:**
 - 動作する開発環境

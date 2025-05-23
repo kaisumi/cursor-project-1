@@ -1,12 +1,12 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:14
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: cursor_project_1_development
     ports:
       - "5432:5432"
 
@@ -29,4 +29,4 @@ services:
 
 volumes:
   postgres_data:
-  redis_data: 
+  redis_data:
