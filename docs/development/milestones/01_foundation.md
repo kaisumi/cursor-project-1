@@ -1,74 +1,121 @@
-# マイルストーン1: 基盤構築
-期間: 2024-04-30 ~ 2024-05-01
+# マイルストーン1: MVP基盤構築（Day 1）
+期間: 2024-05-23（1日間）
 
 ## 🎯 目標
 - 開発環境の整備
 - 基本的なユーザー認証の実装
-- プロジェクトの基本構造の確立
+- MVP開発の基盤確立
 
 ## 📋 タスク一覧
 
-### 1. 開発環境セットアップ [ENV-001]
+### 1. 開発環境セットアップ [ENV-001] - 4時間
 - [ ] Docker環境の構築
-    - ベースイメージ: ruby:3.2.x
-    - 必要なサービス: PostgreSQL, Redis
-    - メールサーバー: Mailcatcher
-- [ ] VSCode設定
-    - 必要な拡張機能: Ruby, Rails, Docker
-    - 推奨設定の適用
-- [ ] git-flowの設定
-    - ブランチ命名規則の確立
-    - コミットメッセージ規約の設定
+    - PostgreSQL 14
+    - Redis 7
+    - Mailcatcher
+- [ ] Rails 7アプリケーションの初期化
+- [ ] 基本的なGemの導入
+    - devise (認証)
+    - tailwindcss-rails
+    - turbo-rails
+    - stimulus-rails
 
-### 2. データベース設計 [DB-001]
-- [ ] マイグレーションファイルの作成
+**成果物:**
+- 動作する開発環境
+- 基本的なRailsアプリケーション
+
+### 2. 認証機能の実装 [AUTH-001] - 4時間
+- [ ] メールアドレスによるユーザー登録
+- [ ] メールリンク認証（簡素版）
+- [ ] ログイン/ログアウト
+- [ ] 基本的なユーザープロフィール
+
+**実装範囲:**
+- User モデル
+- 認証コントローラー
+- 基本的なビュー
+- メール送信機能（開発環境のみ）
+
+**除外項目:**
+- 複雑なトークン管理
+- パスワードリセット
+- OAuth連携
+
+### 3. 基本データベース設計 [DB-001]
+- [ ] Userテーブルの作成
     ```ruby
     # 実装例
     create_table :users do |t|
       t.string :email, null: false
-      t.string :name
+      t.string :name, null: false
       t.timestamps
     end
+    add_index :users, :email, unique: true
     ```
-- [ ] シードデータの準備
-    - テスト用ユーザーの作成
-    - 基本的な設定値の投入
+- [ ] 基本的なバリデーション
+    - メールアドレスの一意性
+    - 名前の必須入力
 
-### 3. 認証機能の実装 [AUTH-001]
-- [ ] パスワードレス認証の基本実装
-    - メール送信機能
-    - トークン生成ロジック
-    - セッション管理
-- [ ] 基本的なエラーハンドリング
-    - バリデーション
-    - エラーメッセージ
-    - ログ出力
+### 4. CI/CD基本設定 [CI-001] - 1時間
+- [ ] GitHub Actionsの基本設定
+    ```yaml
+    # .github/workflows/ci.yml
+    name: CI
+    on: [push, pull_request]
+    jobs:
+      test:
+        runs-on: ubuntu-latest
+        services:
+          postgres:
+            image: postgres:14
+            env:
+              POSTGRES_PASSWORD: postgres
+            options: >-
+              --health-cmd pg_isready
+              --health-interval 10s
+              --health-timeout 5s
+              --health-retries 5
+        steps:
+          - uses: actions/checkout@v3
+          - uses: ruby/setup-ruby@v1
+            with:
+              bundler-cache: true
+          - name: Setup Database
+            run: |
+              bundle exec rails db:create
+              bundle exec rails db:migrate
+          - name: Run Tests
+            run: bundle exec rspec
+          - name: Run Rubocop
+            run: bundle exec rubocop
+    ```
+- [ ] 基本的なRSpecテストの作成
+- [ ] Rubocopの設定
 
-### 4. テスト環境の整備 [TEST-001]
-- [ ] RSpecの設定
-    - 基本的な設定
-    - ファクトリの作成
-    - ヘルパーの準備
-- [ ] テストカバレッジの設定
-    - SimpleCovの導入
-    - カバレッジレポートの設定
-
-### 5. CI/CDの基本設定 [CI-001]
-- [ ] GitHub Actionsの設定
-    - 基本的なワークフローの作成
-    - テストの自動実行
-    - 静的解析の設定
-- [ ] デプロイメント設定
-    - ステージング環境の設定
-    - デプロイスクリプトの作成
+**制限事項（MVP範囲外）:**
+- ESLintによるJavaScript解析
+- セキュリティスキャン
+- 複雑なデプロイパイプライン
 
 ## 📊 進捗管理
-- タスクの完了状況
-- リスクの管理
-- 課題の追跡
+- [ ] 環境構築完了
+- [ ] 認証機能動作確認
+- [ ] 基本的なユーザー登録・ログインテスト
+- [ ] CI/CD基本設定完了
 
 ## 🔍 レビューポイント
-- セキュリティ要件の充足
-- パフォーマンス要件の充足
-- コード品質の確保
-- ドキュメントの完全性 
+- 開発環境の動作確認
+- 認証機能の基本動作
+- セキュリティの基本対策
+- 次日への準備完了
+
+## 🔄 依存関係
+- なし（プロジェクト開始）
+
+## 🛠 技術スタック
+- バックエンド: Ruby on Rails 7
+- データベース: PostgreSQL 14
+- キャッシュ: Redis 7
+- 認証: Devise
+- フロントエンド: Hotwire (Turbo + Stimulus)
+- CSS: Tailwind CSS
