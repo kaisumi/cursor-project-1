@@ -40,7 +40,7 @@
 ```
 
 ### 2.2 技術スタック
-- バックエンド: Ruby on Rails 8.0.2
+- バックエンド: Ruby on Rails 8.0.3
 - フロントエンド: Hotwire (Turbo + Stimulus)
 - データベース: PostgreSQL
 - キャッシュ: Redis
