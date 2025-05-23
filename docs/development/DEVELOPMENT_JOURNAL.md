@@ -61,8 +61,8 @@
   - MVP範囲: 基本的なテスト自動化とデプロイ自動化
 
 ### 開発環境の状態
-- Ruby: 3.2.x
-- Rails: 7/8
+- Ruby: 3.4.3
+- Rails: 8.0.2
 - PostgreSQL: 14
 - Redis: 7
 - Docker: 最新版

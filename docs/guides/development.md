@@ -9,7 +9,7 @@
 ## 開発環境のセットアップ
 
 ### 必要条件
-- Ruby 3.2.x
+- Ruby 3.4.3
 - Node.js v20.11.1 以上
 - Docker Desktop 最新版
 - Git 2.39.0 以上
