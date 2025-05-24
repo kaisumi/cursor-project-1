@@ -59,7 +59,7 @@ yarn-debug.log*
 spec/examples.txt
 
 # Ignore local development files
-.ruby-version
+# .ruby-version - needed for CI
 .ruby-gemset
 .rvmrc
 .tool-versions
