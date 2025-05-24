@@ -21,48 +21,44 @@ git clone https://github.com/your-org/your-repo.git
 cd your-repo
 ```
 
-2. 依存関係のインストール
+2. Dockerサービスの起動
 ```bash
-bundle install
-yarn install
+docker compose up
 ```
 
-3. 環境変数の設定
-```bash
-cp .env.example .env
-# .envファイルを編集して必要な値を設定
-```
+これだけで開発環境が起動します。初回起動時には以下の処理が自動的に行われます：
+- 依存関係のインストール（bundle install）
+- データベースの作成（rails db:create）
+- マイグレーションの実行（rails db:migrate）
+- アセットのコンパイル（tailwindcss:build）
 
-4. Dockerサービスの起動
-```bash
-docker compose up -d
-```
+3. アプリケーションへのアクセス
+ブラウザで http://localhost:3000 にアクセスすると、アプリケーションのホームページが表示されます。
 
-5. データベースのセットアップ
-```bash
-rails db:create
-rails db:migrate
-rails db:seed
-```
-
-6. 開発サーバーの起動
-```bash
-./bin/dev
-```
+4. メール確認（開発環境）
+開発環境では、Mailcatcherを使用してメールを確認できます。
+ブラウザで http://localhost:1080 にアクセスすると、送信されたメールを確認できます。
 
 ### 開発環境の構成
 
 開発環境は以下のサービスで構成されています：
 
-1. **Railsアプリケーション**
-   - ホストマシンで直接実行
-   - デバッグ機能を活用可能
-   - ファイル変更の即時反映
+1. **Railsアプリケーション (Docker)**
+   - Ruby 3.4.3
+   - Rails 8.0.2
+   - ポート: 3000
+   - ホットリロード対応
+   - ボリュームマウントによるファイル変更の即時反映
 
 2. **PostgreSQL (Docker)**
    - バージョン: 14
    - ポート: 5432
    - データは永続化（`postgres_data`ボリューム）
+   - 接続情報：
+     - ホスト: db
+     - ユーザー: postgres
+     - パスワード: password
+     - データベース: app_development
 
 3. **Redis (Docker)**
    - バージョン: 7
@@ -74,28 +70,40 @@ rails db:seed
    - Web UI: http://localhost:1080
    - SMTPポート: 1025
    - 開発環境でのメール送信テスト用
+   - Deviseからのメール（パスワードリセットなど）を確認可能
 
 ### 開発用コマンド一覧
 
 ```bash
 # Dockerサービスの操作
-docker compose ps          # サービスの状態確認
-docker compose logs -f     # ログの確認
-docker compose restart     # サービスの再起動
-docker compose down        # サービスの停止
+docker compose ps                # サービスの状態確認
+docker compose logs -f           # ログの確認
+docker compose restart           # サービスの再起動
+docker compose down              # サービスの停止
+docker compose down -v           # サービスの停止とボリュームの削除
 
-# データベース操作
-rails db:migrate          # マイグレーションの実行
-rails db:rollback         # マイグレーションのロールバック
-rails db:seed             # シードデータの投入
+# Railsコマンド（Dockerコンテナ内で実行）
+docker compose run --rm web rails db:migrate        # マイグレーションの実行
+docker compose run --rm web rails db:rollback       # マイグレーションのロールバック
+docker compose run --rm web rails db:seed           # シードデータの投入
+docker compose run --rm web rails generate model User # モデルの生成
+docker compose run --rm web rails routes            # ルーティングの確認
+docker compose run --rm web rails console           # コンソールの起動
+docker compose run --rm web rails db:reset          # データベースのリセット
 
-# Railsコマンド
-rails generate model User  # モデルの生成
-rails routes              # ルーティングの確認
-rails console            # コンソールの起動
+# Deviseコマンド
+docker compose run --rm web rails generate devise:views        # Deviseビューの生成
+docker compose run --rm web rails generate devise:controllers  # Deviseコントローラーの生成
 
 # テストの実行
-rspec                    # テストの実行
+docker compose run --rm web rspec                   # すべてのテストを実行
+docker compose run --rm web rspec spec/models       # モデルのテストのみ実行
+docker compose run --rm web rspec spec/controllers  # コントローラーのテストのみ実行
+
+# その他の便利なコマンド
+docker compose run --rm web bundle install          # Gemのインストール
+docker compose run --rm web yarn install            # npmパッケージのインストール
+docker compose run --rm web rails assets:precompile # アセットのプリコンパイル
 ```
 
 ## コーディング規約
@@ -203,6 +211,6 @@ type:
 - データベースクエリ: 100ms以内
 
 ## ステータス
-- 最終更新日: 2024-04-30
-- ステータス: Draft
-- レビュー状態: 未レビュー 
+- 最終更新日: 2024-05-24
+- ステータス: Active
+- レビュー状態: レビュー済み
