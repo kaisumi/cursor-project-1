@@ -43,7 +43,7 @@ Rails.application.configure do
   # Configure mailer to use mailcatcher in development
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: 'mailcatcher',
+    address: "mailcatcher",
     port: 1025
   }
 
